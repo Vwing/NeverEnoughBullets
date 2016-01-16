@@ -13,6 +13,7 @@ ABounds::ABounds()
 
 	VerticalBounds = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("VerticalBoundsSprite"));
 	HorizontalBounds = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("HorizontalBoundsSprite"));
+	ConstructorHelpers::FObjectFinder<UPaperSprite>(TEXT(""));
 
 }
 
