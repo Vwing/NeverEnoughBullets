@@ -20,6 +20,41 @@ public:
 	// Called every frame
 	virtual void Tick( float DeltaSeconds ) override;
 
+	void MakeMovements(float DeltaTime);
+
+	void UpdateOverlappingComponents(TArray<UPrimitiveComponent*>& OverlappingComponents);
+
+	struct EProjectileStates
+	{
+		enum Type
+		{
+			PlayerShot,
+			MonsterShotStraight,
+			MonsterShotSin
+		};
+
+	};
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
+		EProjectileStates::Type ProjectileState;
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
+		FVector MovementDirection;
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
+		float Speed;
+
+	UPROPERTY(EditAnywhere, Category = "Visual")
+	class UPaperSpriteComponent* ProjectileSprite;
+
+	UPROPERTY(EditAnywhere, Category = "Audio")
+	class UAudioComponent* ShootingSound;
+
+	UPROPERTY(EditAnywhere, Category = "Debug")
+		TArray<UPrimitiveComponent*> OverlappingComponents;
+
+	UPROPERTY(EditAnywhere, Category = "Debug")
+		FString DebugString;
 	
 	
 };
