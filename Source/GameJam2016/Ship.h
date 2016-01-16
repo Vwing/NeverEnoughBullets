@@ -20,6 +20,9 @@ public:
 	void Fire();
 	void MoveUp(float AxisValue);
 	void MoveRight(float AxisValue);
+	void MakeMovements(float DeltaTime);
+	
+	void UpdateOverlappingComponents(TArray<UPrimitiveComponent*>& OverlappingComponents);
 	
 
 	UPROPERTY(EditAnywhere, Category = "Stats")
@@ -54,4 +57,10 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Audio")
 	class UAudioComponent* ShootingSound;
+
+	UPROPERTY(EditAnywhere,Category= "Debug")
+	TArray<UPrimitiveComponent*> OverlappingComponents;
+
+	UPROPERTY(EditAnywhere, Category = "Debug")
+		FString DebugString;
 };

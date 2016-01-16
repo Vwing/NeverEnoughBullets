@@ -23,6 +23,8 @@ AShip::AShip()
 	ShipSprite->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	ShipSprite->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 	ShipSprite->SetEnableGravity(false);
+	ShipSprite->bMultiBodyOverlap = true;
+	ShipSprite->GetBodyInstance()->bUseCCD = true;
 
 	ShootingSound = CreateDefaultSubobject<UAudioComponent>(TEXT("ShootingSound"));
 	ConstructorHelpers::FObjectFinder<USoundBase> ShootingSoundAsset(TEXT("SoundWave'/Game/SFX/Burn.Burn'"));
@@ -35,6 +37,7 @@ AShip::AShip()
 	CurrentHorizontalSpeed = 0.0f;
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
+	DebugString = "";
 }
 
 // Called when the game starts or when spawned
@@ -42,18 +45,18 @@ void AShip::BeginPlay()
 {
 	ShootingSound->Stop();
 	Super::BeginPlay();
-	
+
 }
 
 // Called every frame
-void AShip::Tick( float DeltaTime )
+void AShip::Tick(float DeltaTime)
 {
-	Super::Tick( DeltaTime );
-	
-	CurrentVerticalSpeed *= DeltaTime;
-	CurrentHorizontalSpeed *= DeltaTime;
-	SetActorLocation(GetActorLocation() + FVector(CurrentHorizontalSpeed, CurrentVerticalSpeed, 0.0f));
-		
+	Super::Tick(DeltaTime);
+
+	MakeMovements(DeltaTime);
+	ShipSprite->GetOverlappingComponents(OverlappingComponents);
+	//UpdateOverlappingComponents(OverlappingComponents);
+
 	switch (ShipState)
 	{
 	case EShipStates::Static:
@@ -122,6 +125,23 @@ void AShip::MoveRight(float AxisValue)
 	{
 		return;
 	}
-	CurrentHorizontalSpeed = AxisValue*MaxHorizontalSpeed;	
+	CurrentHorizontalSpeed = AxisValue*MaxHorizontalSpeed;
 }
 
+void AShip::MakeMovements(float DeltaTime)
+{
+	CurrentVerticalSpeed *= DeltaTime;
+	CurrentHorizontalSpeed *= DeltaTime;
+	SetActorLocation(GetActorLocation() + FVector(CurrentHorizontalSpeed, CurrentVerticalSpeed, 0.0f));
+}
+
+void UpdateOverlappingComponents(TArray<UPrimitiveComponent*>& OverlappingComponents)
+{
+	for (int i = 0; i < OverlappingComponents.Num(); ++i)
+	{
+		if (OverlappingComponents[i]->GetName().Contains("VerticalBounds"))
+		{
+			//OverlappingComponents[i]->
+		}
+	}
+}

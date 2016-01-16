@@ -17,8 +17,9 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick( float DeltaSeconds ) override;
 
-	class UPaperSpriteComponent* VerticalBounds;
-	class UPaperSpriteComponent* HorizontalBounds;
-	
-	
+	class UPaperSpriteComponent* RootBounds;
+	class UPaperSpriteComponent* TopBounds;
+	class UPaperSpriteComponent* BottomBounds;
+	class UPaperSpriteComponent* LeftBounds;
+	class UPaperSpriteComponent* RightBounds;
 };
