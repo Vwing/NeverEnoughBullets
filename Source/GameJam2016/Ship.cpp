@@ -15,6 +15,19 @@ AShip::AShip()
 	ShipSprite->SetSprite(ShipSpriteAsset.Object);
 	RootComponent = ShipSprite;
 
+	ShipSprite->bGenerateOverlapEvents = true;
+	ShipSprite->SetNotifyRigidBodyCollision(true);
+	ShipSprite->GetBodyInstance()->bLockZTranslation = true;
+	SetActorEnableCollision(true);
+	ShipSprite->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
+	ShipSprite->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	ShipSprite->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+	ShipSprite->SetEnableGravity(false);
+
+	ShootingSound = CreateDefaultSubobject<UAudioComponent>(TEXT("ShootingSound"));
+	ConstructorHelpers::FObjectFinder<USoundBase> ShootingSoundAsset(TEXT("SoundWave'/Game/SFX/Burn.Burn'"));
+	ShootingSound->SetSound(ShootingSoundAsset.Object);
+
 	ShipState = EShipStates::Static;
 	MaxVerticalSpeed = 500.0f;
 	MaxHorizontalSpeed = 500.0f;
@@ -27,6 +40,7 @@ AShip::AShip()
 // Called when the game starts or when spawned
 void AShip::BeginPlay()
 {
+	ShootingSound->Stop();
 	Super::BeginPlay();
 	
 }
@@ -88,6 +102,7 @@ void AShip::Fire()
 	{
 		return;
 	}
+	ShootingSound->Play();
 }
 
 void AShip::MoveUp(float AxisValue)

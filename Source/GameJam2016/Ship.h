@@ -51,4 +51,7 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Stats")
 	class UPaperSpriteComponent* ShipSprite;
+
+	UPROPERTY(EditAnywhere, Category = "Audio")
+	class UAudioComponent* ShootingSound;
 };
