@@ -13,8 +13,8 @@ ABounds::ABounds()
 
 	VerticalBounds = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("VerticalBoundsSprite"));
 	HorizontalBounds = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("HorizontalBoundsSprite"));
-	ConstructorHelpers::FObjectFinder<UPaperSprite>(TEXT(""));
-
+	ConstructorHelpers::FObjectFinder<UPaperSprite> HorizontalBounds(TEXT("PaperSprite'/Game/Sprites/HorizontalBounds.HorizontalBounds'"));
+	ConstructorHelpers::FObjectFinder<UPaperSprite> VerticalBounds(TEXT("PaperSprite'/Game/Sprites/VerticalBounds.VerticalBounds'"));
 }
 
 // Called when the game starts or when spawned
