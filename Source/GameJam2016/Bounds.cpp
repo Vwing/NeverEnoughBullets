@@ -25,6 +25,8 @@ ABounds::ABounds()
 	LeftBounds->GetBodyInstance()->bLockRotation = true;
 	LeftBounds->GetBodyInstance()->bLockTranslation = true;
 	LeftBounds->SetAbsolute(false, false, false);
+	LeftBounds->SetSimulatePhysics(false);
+
 
 	TopBounds = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("TopBoundsSprite"));
 	ConstructorHelpers::FObjectFinder<UPaperSprite> TopBoundsAsset(TEXT("PaperSprite'/Game/Sprites/TopBounds.TopBounds'"));
@@ -58,7 +60,7 @@ ABounds::ABounds()
 	RightBounds->AttachTo(RootComponent);
 
 	RightBounds->GetBodyInstance()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	RightBounds->GetBodyInstance()->SetResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+	RightBounds->GetBodyInstance()->SetResponseToAllChannels(ECollisionResponse::ECR_Block);
 	RightBounds->SetCollisionObjectType(ECollisionChannel::ECC_WorldStatic);
 	RightBounds->GetBodyInstance()->bLockRotation = true;
 	RightBounds->GetBodyInstance()->bLockTranslation = true;	

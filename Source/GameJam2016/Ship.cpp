@@ -19,8 +19,9 @@ AShip::AShip()
 	ShipSprite->SetNotifyRigidBodyCollision(true);
 	ShipSprite->GetBodyInstance()->bLockZTranslation = true;
 	SetActorEnableCollision(true);
+	ShipSprite->SetSimulatePhysics(false);
 	ShipSprite->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
-	ShipSprite->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	ShipSprite->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	ShipSprite->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 	ShipSprite->SetEnableGravity(false);
 	ShipSprite->bMultiBodyOverlap = true;
@@ -35,6 +36,7 @@ AShip::AShip()
 	MaxHorizontalSpeed = 500.0f;
 	CurrentVerticalSpeed = 0.0f;
 	CurrentHorizontalSpeed = 0.0f;
+	bCanMoveLeft = true;
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 	DebugString = "";
@@ -131,7 +133,25 @@ void AShip::MoveRight(float AxisValue)
 void AShip::MakeMovements(float DeltaTime)
 {
 	CurrentVerticalSpeed *= DeltaTime;
-	CurrentHorizontalSpeed *= DeltaTime;
+
+	if (bCanMoveLeft == false) //code for blocking left movements
+	{
+		if (CurrentHorizontalSpeed > 0.0f)
+		{
+			bCanMoveLeft = true;
+			CurrentHorizontalSpeed *= DeltaTime;
+		}
+		else
+		{
+			CurrentHorizontalSpeed = 0.0f;
+		}
+	}
+	else
+	{
+		bCanMoveLeft = true;
+		CurrentHorizontalSpeed *= DeltaTime;
+	}
+
 	SetActorLocation(GetActorLocation() + FVector(CurrentHorizontalSpeed, CurrentVerticalSpeed, 0.0f));
 }
 
@@ -160,10 +180,10 @@ void AShip::UpdateOverlappingComponents(TArray<UPrimitiveComponent*>& Overlappin
 		{
 			ABounds* bounds = Cast<ABounds>(OverlappingComponents[i]->GetAttachmentRootActor());
 
-			if (bounds == nullptr || bounds == NULL)
+		//	if (bounds == nullptr || bounds == NULL)
 			{
-				ShipState = EShipStates::ErrorState;
-				return;
+		//		ShipState = EShipStates::ErrorState;
+		//		return;
 			}
 
 			FVector TeleportLocation = FVector(GetActorLocation().X,
@@ -171,6 +191,35 @@ void AShip::UpdateOverlappingComponents(TArray<UPrimitiveComponent*>& Overlappin
 				0.0f); // code fore teleportation
 			SetActorLocation(TeleportLocation);
 		}
-		
+		else if (OverlappingComponents[i]->GetName().Contains("LeftBoundsSprite"))
+		{
+			ABounds* bounds = Cast<ABounds>(OverlappingComponents[i]->GetAttachmentRootActor());
+
+			if (bounds == nullptr || bounds == NULL)
+			{
+				ShipState = EShipStates::ErrorState;
+				return;
+			}
+
+			FVector TeleportLocation = FVector(GetActorLocation().X + CurrentHorizontalSpeed + 3.0f,
+				GetActorLocation().Y, 0.0f); // code fore teleportation
+			bCanMoveLeft = false;
+
+			SetActorLocation(TeleportLocation);
+		}
+		else if (OverlappingComponents[i]->GetName().Contains("RightBoundsSprite"))
+		{
+			//ABounds* bounds = Cast<ABounds>(OverlappingComponents[i]->GetAttachmentRootActor());
+
+		//	if (bounds == nullptr || bounds == NULL)
+		//	{
+			//	ShipState = EShipStates::ErrorState;
+		//		return;
+		//	}
+
+			FVector TeleportLocation = FVector(OverlappingComponents[i]->GetComponentLocation().X + 1.0f,
+				GetActorLocation().Y, 0.0f); // code fore teleportation
+			SetActorLocation(TeleportLocation);
+		}
 	}
 }

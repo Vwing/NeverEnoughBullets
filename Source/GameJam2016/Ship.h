@@ -63,4 +63,6 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Debug")
 		FString DebugString;
+	
+	bool bCanMoveLeft;
 };
