@@ -3,7 +3,7 @@
 #include "GameJam2016.h"
 #include "Ship.h"
 #include "PaperSpriteComponent.h"
-
+#include "Bounds.h"
 
 // Sets default values
 AShip::AShip()
@@ -55,7 +55,7 @@ void AShip::Tick(float DeltaTime)
 
 	MakeMovements(DeltaTime);
 	ShipSprite->GetOverlappingComponents(OverlappingComponents);
-	//UpdateOverlappingComponents(OverlappingComponents);
+	UpdateOverlappingComponents(OverlappingComponents);
 
 	switch (ShipState)
 	{
@@ -135,13 +135,42 @@ void AShip::MakeMovements(float DeltaTime)
 	SetActorLocation(GetActorLocation() + FVector(CurrentHorizontalSpeed, CurrentVerticalSpeed, 0.0f));
 }
 
-void UpdateOverlappingComponents(TArray<UPrimitiveComponent*>& OverlappingComponents)
+void AShip::UpdateOverlappingComponents(TArray<UPrimitiveComponent*>& OverlappingComponents)
 {
 	for (int i = 0; i < OverlappingComponents.Num(); ++i)
 	{
-		if (OverlappingComponents[i]->GetName().Contains("VerticalBounds"))
+		if (OverlappingComponents[i]->GetName().Contains("TopBoundsSprite"))
 		{
-			//OverlappingComponents[i]->
+			ABounds* bounds = Cast<ABounds>(OverlappingComponents[i]->GetAttachmentRootActor());
+
+			if (bounds == nullptr || bounds == NULL)
+			{
+				ShipState = EShipStates::ErrorState;
+				return;
+			}
+			
+			FVector TeleportLocation = FVector(GetActorLocation().X, 
+				-GetActorLocation().Y - ShipSprite->Bounds.BoxExtent.X,  // we rotated the ship, its actually portrait naturally, we rotated it, so we use X
+				0.0f); // code fore teleportation
+				
+
+			SetActorLocation(TeleportLocation);
 		}
+		else if (OverlappingComponents[i]->GetName().Contains("BottomBoundsSprite")) //if hit the bottom bound teleport up
+		{
+			ABounds* bounds = Cast<ABounds>(OverlappingComponents[i]->GetAttachmentRootActor());
+
+			if (bounds == nullptr || bounds == NULL)
+			{
+				ShipState = EShipStates::ErrorState;
+				return;
+			}
+
+			FVector TeleportLocation = FVector(GetActorLocation().X,
+				-GetActorLocation().Y + ShipSprite->Bounds.BoxExtent.X,  // we rotated the ship, its actually portrait naturally, we rotated it, so we use X
+				0.0f); // code fore teleportation
+			SetActorLocation(TeleportLocation);
+		}
+		
 	}
 }
