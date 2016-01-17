@@ -19,10 +19,12 @@ public:
 	
 	// Called every frame
 	virtual void Tick( float DeltaSeconds ) override;
-
+};
+	/*
 	void MakeMovements(float DeltaTime);
 
 	void UpdateOverlappingComponents(TArray<UPrimitiveComponent*>& OverlappingComponents);
+	void SetPlayerShot(int XBulletSpeed, int YBulletSpeed,FVector ProjectileLocation);
 
 	struct EProjectileStates
 	{
@@ -35,14 +37,17 @@ public:
 
 	};
 
-	UPROPERTY(EditAnywhere, Category = "Movement")
+	//UPROPERTY(EditAnywhere, Category = "Movement")
 		EProjectileStates::Type ProjectileState;
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
 		FVector MovementDirection;
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
-		float Speed;
+		float XSpeed;
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
+		float YSpeed;
 
 	UPROPERTY(EditAnywhere, Category = "Visual")
 	class UPaperSpriteComponent* ProjectileSprite;
@@ -56,5 +61,5 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Debug")
 		FString DebugString;
 	
-	
-};
+	*/
+

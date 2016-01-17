@@ -18,13 +18,15 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 
 	void Fire();
+	void StopFire();
 	void MoveUp(float AxisValue);
 	void MoveRight(float AxisValue);
 	void MakeMovements(float DeltaTime);
-	
+	void ShootProjectile();
+	void UpdateProjectiles(float DeltaTime);
 	void UpdateOverlappingComponents(TArray<UPrimitiveComponent*>& OverlappingComponents);
 	
-
+	
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		float MaxVerticalSpeed;
 	UPROPERTY(EditAnywhere, Category = "Stats")
@@ -33,6 +35,20 @@ public:
 	float CurrentHorizontalSpeed;
 	UPROPERTY(EditAnywhere,Category = "Stats")
 	float CurrentVerticalSpeed;
+
+	UPROPERTY(EditAnywhere, Category = "Projectile")
+		float ProjectileSpeed;
+	UPROPERTY(EditAnywhere, Category = "Projectile")
+		int8 MaxShots;
+	UPROPERTY(EditAnywhere, Category = "Projectile")
+		int8 ShotsInUse;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		TArray<class UPaperSpriteComponent*>  ProjectilesArray;
+	UPROPERTY(EditAnywhere, Category = "Projectile")
+		FRotator ProjectileRotation;
+
+	UPROPERTY(EditAnywhere, Category = "Projectile")
+		bool bCanShoot;
 
 	struct EShipStates
 	{
