@@ -21,6 +21,10 @@ public:
 	void StopFire();
 	void MoveUp(float AxisValue);
 	void MoveRight(float AxisValue);
+	void Absorb();
+	void StopAbsorb();
+	void InitiateAbsorb();
+
 	void MakeMovements(float DeltaTime);
 	void ShootProjectile();
 	void UpdateProjectiles(float DeltaTime);
@@ -39,9 +43,11 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		float ProjectileSpeed;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
-		int8 MaxShots;
+		int8 MaxShotsUsed;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		int8 ShotsInUse;
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
+		int8 Ammo;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		TArray<class UPaperSpriteComponent*>  ProjectilesArray;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
@@ -70,6 +76,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Stats")
 	class UPaperSpriteComponent* ShipSprite;
 
+	UPROPERTY(EditAnywhere, Category = "Stats")
+
+	class UPaperSpriteComponent* AbsorbSprite; 
+
+	UPROPERTY(EditAnywhere, Category = "Audio")
+	class UAudioComponent* AbsorbSound;
 	UPROPERTY(EditAnywhere, Category = "Audio")
 	class UAudioComponent* ShootingSound;
 
@@ -79,7 +91,13 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Debug")
 		FString DebugString;
 	
+	//UPROPERTY(EditAnywhere, Category = "Stats")
+	//class AMonster* MonsterReference;
+
 	bool bCanMoveLeft;
 	bool bCanMoveRight;
+	bool bIsDead;
+	bool bCanAbsorb;
 
+	FTimerHandle ShipHandle;
 };

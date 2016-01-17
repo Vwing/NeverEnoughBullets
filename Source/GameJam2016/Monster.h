@@ -19,13 +19,23 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		float Health;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		FVector ShipLocation;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		TArray<UPrimitiveComponent*> OverlappingComponents;
 
+//	UPROPERTY(EditAnywhere, Category = "Projectiles")
+	//	TArray<class UPaperSpriteComponent*>  SlowProjectilesArray;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
-		TArray<class UPaperSpriteComponent*>  SlowProjectilesArray;
+		TArray<class UPaperSpriteComponent*>  FastProjectilesArray;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		FRotator ProjectileRotation;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
-		FVector ShotLocation;
+		int8 ShotsInUse;
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
+		int8 MaxShotsUsed;
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
+		TArray<FVector> FastProjectileLocations;
 
 	UPROPERTY(EditAnywhere, Category = "Anim")
 	class UPaperFlipbookComponent* MonsterFlipbook;
@@ -33,11 +43,16 @@ public:
 	class UPaperFlipbook* IdleAnim;
 	UPROPERTY(EditAnywhere, Category = "Anim")
 	class UPaperFlipbook* DamagedAnim;
+	UPROPERTY(EditAnywhere, Category = "Anim")
+	class UPaperFlipbook* FastShotAnim;
 
 	class UPaperSpriteComponent* MonsterSprite;
 
 	UPROPERTY(EditAnywhere, Category = "Sound")
 	class UAudioComponent* DamagedSound;
+
+	UPROPERTY(EditAnywhere, Category = "Debug")
+		FString DebugString;
 
 	struct EMonsterStates
 	{
@@ -54,9 +69,15 @@ public:
 
 	EMonsterStates::Type MonsterState;
 	
+	void ShootFastProjectile();
+	void UpdateProjectiles(float DeltaTime);
+	bool UpdateOverlappingProjectiles(TArray<UPrimitiveComponent*>& OverlappingComponents);
+
 	void SetDamagedState();
 	void SetDamagedAnim();
 	void SetIdleAnim();
 	void SetIdleState();
+	void SetShootingFastState();
+	void SetFastShotAnim();
 	FTimerHandle MonsterHandle;
 };

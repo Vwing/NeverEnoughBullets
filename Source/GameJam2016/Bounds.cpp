@@ -60,7 +60,7 @@ ABounds::ABounds()
 	RightBounds->AttachTo(RootComponent);
 
 	RightBounds->GetBodyInstance()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	RightBounds->GetBodyInstance()->SetResponseToAllChannels(ECollisionResponse::ECR_Block);
+	RightBounds->GetBodyInstance()->SetResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 	RightBounds->SetCollisionObjectType(ECollisionChannel::ECC_WorldStatic);
 	RightBounds->GetBodyInstance()->bLockRotation = true;
 	RightBounds->GetBodyInstance()->bLockTranslation = true;	

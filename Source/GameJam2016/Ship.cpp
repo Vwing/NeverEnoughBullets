@@ -13,7 +13,7 @@ AShip::AShip()
 	PrimaryActorTick.bCanEverTick = true;
 
 	ShipSprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("ShipSprite"));
-	ConstructorHelpers::FObjectFinder<UPaperSprite> ShipSpriteAsset(TEXT("PaperSprite'/Game/Sprites/SpaceshipSprite.SpaceshipSprite'"));
+	ConstructorHelpers::FObjectFinder<UPaperSprite> ShipSpriteAsset(TEXT("PaperSprite'/Game/Sprites/ShipSprite.ShipSprite'"));
 	ShipSprite->SetSprite(ShipSpriteAsset.Object);
 	RootComponent = ShipSprite;
 
@@ -28,6 +28,22 @@ AShip::AShip()
 	ShipSprite->SetEnableGravity(false);
 	ShipSprite->bMultiBodyOverlap = true;
 	ShipSprite->GetBodyInstance()->bUseCCD = true;
+
+	AbsorbSprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("AbsorbSprite"));
+	ConstructorHelpers::FObjectFinder<UPaperSprite> AbsorbSpriteAsset(TEXT("PaperSprite'/Game/Sprites/AbsorbSprite.AbsorbSprite'"));
+	AbsorbSprite->SetSprite(AbsorbSpriteAsset.Object);
+	AbsorbSprite->SetVisibility(true);
+
+	AbsorbSprite->bGenerateOverlapEvents = true;
+	AbsorbSprite->SetNotifyRigidBodyCollision(true);
+	AbsorbSprite->GetBodyInstance()->bLockZTranslation = true;
+	AbsorbSprite->SetSimulatePhysics(false);
+	AbsorbSprite->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
+	AbsorbSprite->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	AbsorbSprite->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+	AbsorbSprite->SetEnableGravity(false);
+	AbsorbSprite->bMultiBodyOverlap = true;
+	AbsorbSprite->GetBodyInstance()->bUseCCD = true;
 
 	ConstructorHelpers::FObjectFinder<UPaperSprite> PlayerProjectileAsset(TEXT("PaperSprite'/Game/Sprites/NormalShot.NormalShot'"));
 	ProjectilesArray.Reserve(10);
@@ -52,34 +68,47 @@ AShip::AShip()
 	ConstructorHelpers::FObjectFinder<USoundBase> ShootingSoundAsset(TEXT("SoundWave'/Game/SFX/Burn.Burn'"));
 	ShootingSound->SetSound(ShootingSoundAsset.Object);
 
+	AbsorbSound = CreateDefaultSubobject<UAudioComponent>(TEXT("AbsorbSound"));
+	ConstructorHelpers::FObjectFinder<USoundBase> AbsorbSoundAsset(TEXT("SoundWave'/Game/SFX/Absorb.Absorb'"));
+	AbsorbSound->SetSound(AbsorbSoundAsset.Object);
+	
+
 	ShipState = EShipStates::Static;
 	MaxVerticalSpeed = 500.0f;
 	MaxHorizontalSpeed = 500.0f;
 	CurrentVerticalSpeed = 0.0f;
 	CurrentHorizontalSpeed = 0.0f;
 
-	MaxShots = 5;
+	MaxShotsUsed = 5;
 	ShotsInUse = 0;
+	Ammo = 1;
 	bCanMoveLeft = true;
 	bCanShoot = true;
+	bCanAbsorb = true;
 	bCanMoveRight = true;
+	bIsDead = false;
+
 	ProjectileSpeed = 600.0f;
 	ProjectileRotation = FRotator(90.0f, 90.0f, 0.0f);
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 	DebugString = "";
+	//MonsterReference = nullptr;
 }
 
 // Called when the game starts or when spawned
 void AShip::BeginPlay()
 {
 	ShootingSound->Stop();
+	AbsorbSound->Stop();
 	for (int i = 0; i < ProjectilesArray.Num(); i++)
 	{
 		ProjectilesArray[i]->RelativeRotation = ProjectileRotation;
 		ProjectilesArray[i]->SetWorldLocation(FVector(0.0f, 0.0f, -100.0f));
 	}
 
+	AbsorbSprite->RelativeRotation = ProjectileRotation;
+	AbsorbSprite->SetWorldLocation(FVector(-100.0f, 200.0f, -200.0f));
 	Super::BeginPlay();
 }
 
@@ -91,6 +120,7 @@ void AShip::Tick(float DeltaTime)
 	MakeMovements(DeltaTime);
 	ShipSprite->GetOverlappingComponents(OverlappingComponents);
 	UpdateOverlappingComponents(OverlappingComponents);
+
 	if (ShotsInUse > 0)
 	{
 		UpdateProjectiles(DeltaTime);
@@ -134,6 +164,8 @@ void AShip::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 
 	InputComponent->BindAction("Fire", IE_Pressed, this, &AShip::Fire);
 	InputComponent->BindAction("Fire", IE_Released, this, &AShip::StopFire);
+	InputComponent->BindAction("Absorb", IE_Pressed, this, &AShip::Absorb);
+
 	InputComponent->BindAxis("MoveUp", this, &AShip::MoveUp);
 	InputComponent->BindAxis("MoveRight", this, &AShip::MoveRight);
 }
@@ -146,9 +178,10 @@ void AShip::Fire()
 		return;
 	}
 
-	if (ShotsInUse <= MaxShots && bCanShoot)
+	if (ShotsInUse <= MaxShotsUsed && bCanShoot && Ammo > 0)
 	{
 		ShootProjectile();
+		Ammo -= 1;
 		ShootingSound->Play();
 		bCanShoot = false;
 	}
@@ -339,9 +372,13 @@ bool AShip::UpdateOverlappingProjectiles(TArray<UPrimitiveComponent*>& Overlappi
 		if (OverlappingComponents[i]->GetName().Contains("MonsterSprite"))
 		{
 			AMonster* monster = Cast<AMonster>(OverlappingComponents[i]->GetAttachmentRootActor());
-
 			monster->Health -= 1;
 			monster->SetDamagedState();
+			monster->ShipLocation = GetActorLocation();
+			//MonsterReference->Health -= 1;
+		//	MonsterReference->SetDamagedState();
+		//	MonsterReference->ShipLocation = GetActorLocation();
+			//UpdateMonster();
 			//monster = nullptr;
 			ShotsInUse -= 1;
 			return true;
@@ -353,4 +390,31 @@ bool AShip::UpdateOverlappingProjectiles(TArray<UPrimitiveComponent*>& Overlappi
 		}
 	}
 	return false;
+}
+
+void AShip::Absorb()
+{
+	if (bCanAbsorb)
+	{
+		AbsorbSound->Play();
+		bCanAbsorb = false;
+		InitiateAbsorb();
+	}
+}
+
+void AShip::StopAbsorb()
+{
+	bCanAbsorb = true;
+	AbsorbSprite->SetVisibility(false);
+	AbsorbSprite->SetWorldLocation(FVector(-200.0f, -200.0f, -200.0f));
+
+}
+
+void AShip::InitiateAbsorb()
+{
+	AbsorbSprite->SetVisibility(true);
+	AbsorbSprite->SetWorldLocation(FVector(GetActorLocation().X + ShipSprite->Bounds.BoxExtent.X, 
+										GetActorLocation().Y + ShipSprite->Bounds.BoxExtent.Y, 0.0f));
+
+	GetWorldTimerManager().SetTimer(ShipHandle, this, &AShip::StopAbsorb, 0.4f, false);
 }
