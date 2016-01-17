@@ -12,6 +12,7 @@ AShip::AShip()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	/*
 	ShipSprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("ShipSprite"));
 	ConstructorHelpers::FObjectFinder<UPaperSprite> ShipSpriteAsset(TEXT("PaperSprite'/Game/Sprites/ShipSprite.ShipSprite'"));
 	ShipSprite->SetSprite(ShipSpriteAsset.Object);
@@ -94,12 +95,14 @@ AShip::AShip()
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 	DebugString = "";
-	//MonsterReference = nullptr;
+	MonsterReference = nullptr;
+	*/
 }
 
 // Called when the game starts or when spawned
 void AShip::BeginPlay()
 {
+	/*
 	ShootingSound->Stop();
 	AbsorbSound->Stop();
 	for (int i = 0; i < ProjectilesArray.Num(); i++)
@@ -111,13 +114,14 @@ void AShip::BeginPlay()
 	AbsorbSprite->RelativeRotation = ProjectileRotation;
 	AbsorbSprite->SetWorldLocation(FVector(-100.0f, 200.0f, -200.0f));
 	Super::BeginPlay();
+	*/
 }
 
 // Called every frame
 void AShip::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	/*
 	MakeMovements(DeltaTime);
 	ShipSprite->GetOverlappingComponents(OverlappingComponents);
 	UpdateOverlappingComponents(OverlappingComponents);
@@ -156,21 +160,24 @@ void AShip::Tick(float DeltaTime)
 	case EShipStates::Closed:
 		break;
 	}
+	*/
 }
 
 // Called to bind functionality to input
 void AShip::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 {
 	Super::SetupPlayerInputComponent(InputComponent);
-
+	/*
 	InputComponent->BindAction("Fire", IE_Pressed, this, &AShip::Fire);
 	InputComponent->BindAction("Fire", IE_Released, this, &AShip::StopFire);
 	InputComponent->BindAction("Absorb", IE_Pressed, this, &AShip::Absorb);
 
 	InputComponent->BindAxis("MoveUp", this, &AShip::MoveUp);
 	InputComponent->BindAxis("MoveRight", this, &AShip::MoveRight);
+	*/
 }
 
+/*
 void AShip::Fire()
 {
 	if (ShipState == EShipStates::ErrorState ||
@@ -419,3 +426,14 @@ void AShip::InitiateAbsorb()
 
 	GetWorldTimerManager().SetTimer(ShipHandle, this, &AShip::StopAbsorb, 0.4f, false);
 }
+
+void AShip::UpdateMonster()
+{
+	if (MonsterReference == nullptr ||
+		MonsterReference == NULL)
+	{
+		ShipState = EShipStates::ErrorState;
+		return;
+	}
+}
+*/

@@ -15,7 +15,7 @@ public:
 
 	virtual void BeginPlay() override;
 	virtual void Tick( float DeltaSeconds ) override;
-
+	/*
 	class UPaperSpriteComponent* RootBounds;
 	class UPaperSpriteComponent* TopBounds;
 	class UPaperSpriteComponent* BottomBounds;
@@ -33,4 +33,5 @@ public:
 		FVector InnerTopBoundsLocation;
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		float BoundsRadius;
+	*/
 };

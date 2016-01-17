@@ -10,8 +10,9 @@ ABounds::ABounds()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
-	SetActorEnableCollision(true);
+	//SetActorEnableCollision(true);
 
+	/*
 	LeftBounds = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("LeftBoundsSprite"));
 	ConstructorHelpers::FObjectFinder<UPaperSprite> LeftBoundsAsset(TEXT("PaperSprite'/Game/Sprites/LeftBounds.LeftBounds'"));
 	LeftBounds->SetSprite(LeftBoundsAsset.Object);
@@ -36,22 +37,7 @@ ABounds::ABounds()
 	TopBounds->SetCollisionObjectType(ECollisionChannel::ECC_WorldStatic);
 	TopBounds->GetBodyInstance()->bLockRotation = true;
 	TopBounds->GetBodyInstance()->bLockTranslation = true;
-	TopBounds->SetAbsolute(false, false, false);
-
-	/*
-	ConstructorHelpers::FObjectFinder<UStaticMesh> InnerBoundsAsset(TEXT(""));
-
-	TopInnerBounds = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TopInnerBoundsSprite"));
-	TopInnerBounds->SetStaticMesh(InnerBoundsAsset.Object);
-	TopInnerBounds->AttachTo(TopBounds);
-
-	TopInnerBounds->GetBodyInstance()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	TopInnerBounds->GetBodyInstance()->SetResponseToAllChannels(ECollisionResponse::ECR_Overlap);
-	TopInnerBounds->SetCollisionObjectType(ECollisionChannel::ECC_WorldStatic);
-	TopInnerBounds->GetBodyInstance()->bLockRotation = true;
-	TopInnerBounds->GetBodyInstance()->bLockTranslation = true;
-	TopInnerBounds->SetAbsolute(true, true, true);
-	*/
+	TopBounds->SetAbsolute(false, false, false);	
 	
 	BottomBounds = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("BottomBoundsSprite"));
 	ConstructorHelpers::FObjectFinder<UPaperSprite> BottomBoundsAsset(TEXT("PaperSprite'/Game/Sprites/BottomBounds.BottomBounds'"));
@@ -65,19 +51,7 @@ ABounds::ABounds()
 	BottomBounds->GetBodyInstance()->bLockTranslation = true;
 	BottomBounds->SetAbsolute(false, false, false);
 
-	/*
-	BottomInnerBounds = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BottomInnerBoundsSprite"));
-	BottomInnerBounds->SetStaticMesh(InnerBoundsAsset.Object);
-	BottomInnerBounds->AttachTo(BottomBounds);
-
-	BottomInnerBounds->GetBodyInstance()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	BottomInnerBounds->GetBodyInstance()->SetResponseToAllChannels(ECollisionResponse::ECR_Overlap);
-	BottomInnerBounds->SetCollisionObjectType(ECollisionChannel::ECC_WorldStatic);
-	BottomInnerBounds->GetBodyInstance()->bLockRotation = true;
-	BottomInnerBounds->GetBodyInstance()->bLockTranslation = true;
-	BottomInnerBounds->SetAbsolute(true, true, true);
-
-	*/
+	
 	RightBounds = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("RightBoundsSprite"));
 	ConstructorHelpers::FObjectFinder<UPaperSprite> RightBoundsAsset(TEXT("PaperSprite'/Game/Sprites/RightBounds.RightBounds'"));
 	RightBounds->SetSprite(RightBoundsAsset.Object);
@@ -103,6 +77,7 @@ ABounds::ABounds()
 	LeftBounds->RelativeRotation = FRotator(0.0f, 0.0f, 0.0f);
 
 	InnerBoundsRotation = FRotator(90.0f, 0.0f, 90.0f);
+	*/
 }
 
 // Called when the game starts or when spawned

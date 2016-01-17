@@ -16,7 +16,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick( float DeltaSeconds ) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
-
+	/*
 	void Fire();
 	void StopFire();
 	void MoveUp(float AxisValue);
@@ -24,10 +24,11 @@ public:
 	void Absorb();
 	void StopAbsorb();
 	void InitiateAbsorb();
-
+	
 	void MakeMovements(float DeltaTime);
 	void ShootProjectile();
 	void UpdateProjectiles(float DeltaTime);
+	void UpdateMonster();
 	void UpdateOverlappingComponents(TArray<UPrimitiveComponent*>& OverlappingComponents);
 	bool UpdateOverlappingProjectiles(TArray<UPrimitiveComponent*>& OverlappingComponents);
 	
@@ -91,8 +92,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Debug")
 		FString DebugString;
 	
-	//UPROPERTY(EditAnywhere, Category = "Stats")
-	//class AMonster* MonsterReference;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+	class AMonster* MonsterReference;
 
 	bool bCanMoveLeft;
 	bool bCanMoveRight;
@@ -100,4 +101,5 @@ public:
 	bool bCanAbsorb;
 
 	FTimerHandle ShipHandle;
-};
+	*/
+	};

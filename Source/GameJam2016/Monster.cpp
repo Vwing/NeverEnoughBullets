@@ -11,6 +11,7 @@ AMonster::AMonster()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	/*
 	MonsterSprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("MonsterSprite"));
 	ConstructorHelpers::FObjectFinder<UPaperSprite> MonsterSpriteAsset(TEXT("PaperSprite'/Game/Sprites/BossSprites/Boss_Idle1.Boss_Idle1'"));
 	MonsterSprite->SetSprite(MonsterSpriteAsset.Object);
@@ -64,8 +65,8 @@ AMonster::AMonster()
 		SlowProjectile->SetAbsolute(true, true, true);
 
 		SlowProjectilesArray.Push(SlowProjectile);
-	}
-	*/
+	} // actually closes here but cant comment whole section out
+	
 
 
 	ConstructorHelpers::FObjectFinder<UPaperSprite> FastProjectileAsset(TEXT("PaperSprite'/Game/Sprites/NormalShot.NormalShot'"));
@@ -97,13 +98,14 @@ AMonster::AMonster()
 	ProjectileRotation = FRotator(90.0f, 90.0f, 0.0f);
 	MonsterState = EMonsterStates::Idle;
 	ShipLocation = FVector(0.0f, 0.0f, 0.0f);
+	*/
 }
 
 // Called when the game starts or when spawned
 void AMonster::BeginPlay()
 {
 	Super::BeginPlay();
-	DamagedSound->Stop();
+	//DamagedSound->Stop();
 
 	/*
 	for (int i = 0; i < SlowProjectilesArray.Num(); i++)
@@ -112,18 +114,20 @@ void AMonster::BeginPlay()
 		SlowProjectilesArray[i]->SetWorldLocation(FVector(0.0f, 0.0f, -100.0f));
 	}
 	*/
+	/*
 	for (int i = 0; i < FastProjectilesArray.Num(); i++)
 	{
 		FastProjectilesArray[i]->RelativeRotation = ProjectileRotation;
 		FastProjectilesArray[i]->SetWorldLocation(FVector(0.0f, 0.0f, -100.0f));
 	}
+	*/
 }
 
 // Called every frame
 void AMonster::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
-
+/*
 	switch (MonsterState)
 	{
 	case EMonsterStates::Idle:
@@ -143,9 +147,9 @@ void AMonster::Tick( float DeltaTime )
 	case EMonsterStates::ErrorState:
 		break;
 	}
-	
+	*/
 }
-
+/*
 void AMonster::SetDamagedState()
 {
 	MonsterState = EMonsterStates::Damaged;
@@ -274,3 +278,4 @@ bool AMonster::UpdateOverlappingProjectiles(TArray<UPrimitiveComponent*>& Overla
 	} 
 	return false;
 }
+*/
