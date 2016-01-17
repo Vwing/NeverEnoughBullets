@@ -215,9 +215,9 @@ void AShip::UpdateOverlappingComponents(TArray<UPrimitiveComponent*>& Overlappin
 				ShipState = EShipStates::ErrorState;
 				return;
 			}
-			
+
 			FVector TeleportLocation = FVector(GetActorLocation().X, 
-				-GetActorLocation().Y - ShipSprite->Bounds.BoxExtent.X,  // we rotated the ship, its actually portrait naturally, we rotated it, so we use X
+				-GetActorLocation().Y - bounds->BottomBounds->Bounds.BoxExtent.Z,  // we rotated the ship, its actually portrait naturally, we rotated it, so we use X
 				0.0f); // code fore teleportation
 				
 
@@ -234,7 +234,7 @@ void AShip::UpdateOverlappingComponents(TArray<UPrimitiveComponent*>& Overlappin
 			}
 
 			FVector TeleportLocation = FVector(GetActorLocation().X,
-				-GetActorLocation().Y + ShipSprite->Bounds.BoxExtent.X,  // we rotated the ship, its actually portrait naturally, we rotated it, so we use X
+				-GetActorLocation().Y, //+ bounds->BottomBounds->Bounds.BoxExtent.X,  // we rotated the ship, its actually portrait naturally, we rotated it, so we use X
 				0.0f); // code fore teleportation
 			SetActorLocation(TeleportLocation);
 		}
