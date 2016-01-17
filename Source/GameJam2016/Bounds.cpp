@@ -40,6 +40,17 @@ ABounds::ABounds()
 	TopBounds->GetBodyInstance()->bLockTranslation = true;
 	TopBounds->SetAbsolute(false, false, false);
 
+	InnerTopBounds = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("InnerTopBoundsSprite"));
+	InnerTopBounds->SetSprite(TopBoundsAsset.Object);
+	InnerTopBounds->AttachTo(RootComponent);
+
+	InnerTopBounds->GetBodyInstance()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	InnerTopBounds->GetBodyInstance()->SetResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+	InnerTopBounds->SetCollisionObjectType(ECollisionChannel::ECC_WorldStatic);
+	InnerTopBounds->GetBodyInstance()->bLockRotation = true;
+	InnerTopBounds->GetBodyInstance()->bLockTranslation = true;
+	InnerTopBounds->SetAbsolute(false, false, false);
+
 	
 	BottomBounds = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("BottomBoundsSprite"));
 	ConstructorHelpers::FObjectFinder<UPaperSprite> BottomBoundsAsset(TEXT("PaperSprite'/Game/Sprites/BottomBounds.BottomBounds'"));
@@ -52,6 +63,18 @@ ABounds::ABounds()
 	BottomBounds->GetBodyInstance()->bLockRotation = true;
 	BottomBounds->GetBodyInstance()->bLockTranslation = true;
 	BottomBounds->SetAbsolute(false, false, false);
+
+
+	InnerBottomBounds = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("InnerBottomBoundsSprite"));
+	InnerBottomBounds->SetSprite(BottomBoundsAsset.Object);
+	InnerBottomBounds->AttachTo(RootComponent);
+
+	InnerBottomBounds->GetBodyInstance()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	InnerBottomBounds->GetBodyInstance()->SetResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+	InnerBottomBounds->SetCollisionObjectType(ECollisionChannel::ECC_WorldStatic);
+	InnerBottomBounds->GetBodyInstance()->bLockRotation = true;
+	InnerBottomBounds->GetBodyInstance()->bLockTranslation = true;
+	InnerBottomBounds->SetAbsolute(false, false, false);
 
 
 	RightBounds = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("RightBoundsSprite"));
@@ -77,6 +100,9 @@ ABounds::ABounds()
 	BottomBounds->RelativeRotation = FRotator(0.0f, 0.0f, 0.0f);
 	LeftBounds->RelativeLocation = FVector(0.0f, 0.0f, 0.40f);
 	LeftBounds->RelativeRotation = FRotator(0.0f, 0.0f, 0.0f);
+
+	InnerBottomBounds->RelativeLocation = FVector(0.0f, 0.0f, 0.0f);
+	InnerTopBounds->RelativeLocation = FVector(0.0f, 0.0f, 0.0f);
 }
 
 // Called when the game starts or when spawned

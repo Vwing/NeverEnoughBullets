@@ -44,6 +44,7 @@ AShip::AShip()
 	AbsorbSprite->SetEnableGravity(false);
 	AbsorbSprite->bMultiBodyOverlap = true;
 	AbsorbSprite->GetBodyInstance()->bUseCCD = true;
+	AbsorbSprite->SetAbsolute(true, true, true);
 
 	ConstructorHelpers::FObjectFinder<UPaperSprite> PlayerProjectileAsset(TEXT("PaperSprite'/Game/Sprites/NormalShot.NormalShot'"));
 	ProjectilesArray.Reserve(10);
@@ -413,8 +414,8 @@ void AShip::StopAbsorb()
 void AShip::InitiateAbsorb()
 {
 	AbsorbSprite->SetVisibility(true);
-	AbsorbSprite->SetWorldLocation(FVector(GetActorLocation().X + ShipSprite->Bounds.BoxExtent.X, 
-										GetActorLocation().Y + ShipSprite->Bounds.BoxExtent.Y, 0.0f));
+	AbsorbSprite->SetWorldLocation(FVector(GetActorLocation().X + ShipSprite->Bounds.BoxExtent.X*1.2, 
+										GetActorLocation().Y, 0.0f));
 
 	GetWorldTimerManager().SetTimer(ShipHandle, this, &AShip::StopAbsorb, 0.4f, false);
 }

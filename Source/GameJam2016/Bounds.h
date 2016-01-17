@@ -22,6 +22,8 @@ public:
 	class UPaperSpriteComponent* BottomBounds;
 	class UPaperSpriteComponent* LeftBounds;
 	class UPaperSpriteComponent* RightBounds;
+	class UPaperSpriteComponent* InnerTopBounds;
+	class UPaperSpriteComponent* InnerBottomBounds;
 
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		float BoundsRadius;
