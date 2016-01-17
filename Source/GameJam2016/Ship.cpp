@@ -40,7 +40,7 @@ AShip::AShip()
 		PlayerProjectile->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
 		PlayerProjectile->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		PlayerProjectile->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
-		PlayerProjectile->SetVisibility(true);
+		PlayerProjectile->SetVisibility(false);
 		PlayerProjectile->SetEnableGravity(false);
 		PlayerProjectile->SetSimulatePhysics(false);
 		PlayerProjectile->SetAbsolute(true, true, true);
@@ -62,6 +62,7 @@ AShip::AShip()
 	ShotsInUse = 0;
 	bCanMoveLeft = true;
 	bCanShoot = true;
+	bCanMoveRight = true;
 	ProjectileSpeed = 600.0f;
 	ProjectileRotation = FRotator(90.0f, 90.0f, 0.0f);
 
@@ -195,8 +196,21 @@ void AShip::MakeMovements(float DeltaTime)
 			CurrentHorizontalSpeed = 0.0f;
 		}
 	}
+	else if (bCanMoveRight == false) //code for blocking Right movements
+	{
+		if (CurrentHorizontalSpeed < 0.0f)
+		{
+			bCanMoveRight = true;
+			CurrentHorizontalSpeed *= DeltaTime;
+		}
+		else
+		{
+			CurrentHorizontalSpeed = 0.0f;
+		}
+	}
 	else
 	{
+		bCanMoveRight = true;
 		bCanMoveLeft = true;
 		CurrentHorizontalSpeed *= DeltaTime;
 	}
@@ -258,16 +272,17 @@ void AShip::UpdateOverlappingComponents(TArray<UPrimitiveComponent*>& Overlappin
 		}
 		else if (OverlappingComponents[i]->GetName().Contains("RightBoundsSprite"))
 		{
-			//ABounds* bounds = Cast<ABounds>(OverlappingComponents[i]->GetAttachmentRootActor());
+			ABounds* bounds = Cast<ABounds>(OverlappingComponents[i]->GetAttachmentRootActor());
 
-		//	if (bounds == nullptr || bounds == NULL)
-		//	{
-			//	ShipState = EShipStates::ErrorState;
-		//		return;
-		//	}
-
-			FVector TeleportLocation = FVector(OverlappingComponents[i]->GetComponentLocation().X + 1.0f,
+			if (bounds == nullptr || bounds == NULL)
+			{
+				ShipState = EShipStates::ErrorState;
+				return;
+			}
+			FVector TeleportLocation = FVector(GetActorLocation().X - CurrentHorizontalSpeed - 3.0f,
 				GetActorLocation().Y, 0.0f); // code fore teleportation
+			bCanMoveRight = false;
+
 			SetActorLocation(TeleportLocation);
 		}
 	}

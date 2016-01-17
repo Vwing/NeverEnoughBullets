@@ -36,17 +36,17 @@ public:
 	UPROPERTY(EditAnywhere,Category = "Stats")
 	float CurrentVerticalSpeed;
 
-	UPROPERTY(EditAnywhere, Category = "Projectile")
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		float ProjectileSpeed;
-	UPROPERTY(EditAnywhere, Category = "Projectile")
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		int8 MaxShots;
-	UPROPERTY(EditAnywhere, Category = "Projectile")
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		int8 ShotsInUse;
-	UPROPERTY(EditAnywhere, Category = "Stats")
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		TArray<class UPaperSpriteComponent*>  ProjectilesArray;
-	UPROPERTY(EditAnywhere, Category = "Projectile")
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		FRotator ProjectileRotation;
-	UPROPERTY(EditAnywhere, Category = "Projectile")
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		bool bCanShoot;
 
 	struct EShipStates
@@ -80,4 +80,6 @@ public:
 		FString DebugString;
 	
 	bool bCanMoveLeft;
+	bool bCanMoveRight;
+
 };

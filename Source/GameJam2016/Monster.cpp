@@ -42,8 +42,28 @@ AMonster::AMonster()
 	ConstructorHelpers::FObjectFinder<USoundBase> DamagedSoundAsset(TEXT("SoundWave'/Game/SFX/Death.Death'"));
 	DamagedSound->SetSound(DamagedSoundAsset.Object);
 
+	
+	ConstructorHelpers::FObjectFinder<UPaperSprite> SlowProjectileAsset(TEXT("PaperSprite'/Game/Sprites/NormalShot.NormalShot'"));
+	SlowProjectilesArray.Reserve(10);
+	for (int i = 0; i < 10; i++)
+	{
+		//FString Name = "Projectile" + i;
+		UPaperSpriteComponent* SlowProjectile = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("SlowProjectile" + i));
+		SlowProjectile->SetSprite(SlowProjectileAsset.Object);
+
+		SlowProjectile->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+		SlowProjectile->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		SlowProjectile->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+		SlowProjectile->SetVisibility(false);
+		SlowProjectile->SetEnableGravity(false);
+		SlowProjectile->SetSimulatePhysics(false);
+		SlowProjectile->SetAbsolute(true, true, true);
+
+		SlowProjectilesArray.Push(SlowProjectile);
+	}
 
 	Health = 50;
+	ProjectileRotation = FRotator(90.0f, 90.0f, 0.0f);
 	MonsterState = EMonsterStates::Idle;
 }
 
@@ -52,6 +72,13 @@ void AMonster::BeginPlay()
 {
 	Super::BeginPlay();
 	DamagedSound->Stop();
+
+	for (int i = 0; i < SlowProjectilesArray.Num(); i++)
+	{
+		SlowProjectilesArray[i]->RelativeRotation = ProjectileRotation;
+		SlowProjectilesArray[i]->SetWorldLocation(FVector(0.0f, 0.0f, -100.0f));
+	}
+
 }
 
 // Called every frame

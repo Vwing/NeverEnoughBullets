@@ -20,6 +20,13 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		float Health;
 
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
+		TArray<class UPaperSpriteComponent*>  SlowProjectilesArray;
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
+		FRotator ProjectileRotation;
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
+		FVector ShotLocation;
+
 	UPROPERTY(EditAnywhere, Category = "Anim")
 	class UPaperFlipbookComponent* MonsterFlipbook;
 	UPROPERTY(EditAnywhere,Category="Anim")
