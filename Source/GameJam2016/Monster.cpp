@@ -11,7 +11,7 @@ AMonster::AMonster()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	/*
+	
 	MonsterSprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("MonsterSprite"));
 	ConstructorHelpers::FObjectFinder<UPaperSprite> MonsterSpriteAsset(TEXT("PaperSprite'/Game/Sprites/BossSprites/Boss_Idle1.Boss_Idle1'"));
 	MonsterSprite->SetSprite(MonsterSpriteAsset.Object);
@@ -49,11 +49,10 @@ AMonster::AMonster()
 
 	/*
 	ConstructorHelpers::FObjectFinder<UPaperSprite> SlowProjectileAsset(TEXT("PaperSprite'/Game/Sprites/NormalShot.NormalShot'"));
-	SlowProjectilesArray.Reserve(10);
+	SinProjectilesArray.Reserve(10);
 	for (int i = 0; i < 10; i++)
 	{
-		//FString Name = "Projectile" + i;
-		UPaperSpriteComponent* SlowProjectile = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("SlowProjectile" + i));
+		UPaperSpriteComponent* SlowProjectile = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("SinProjectile" + i));
 		SlowProjectile->SetSprite(SlowProjectileAsset.Object);
 
 		SlowProjectile->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
@@ -64,32 +63,31 @@ AMonster::AMonster()
 		SlowProjectile->SetSimulatePhysics(false);
 		SlowProjectile->SetAbsolute(true, true, true);
 
-		SlowProjectilesArray.Push(SlowProjectile);
+		SinProjectilesArray.Push(SlowProjectile);
 	} // actually closes here but cant comment whole section out
-	
+	*/
 
 
-	ConstructorHelpers::FObjectFinder<UPaperSprite> FastProjectileAsset(TEXT("PaperSprite'/Game/Sprites/NormalShot.NormalShot'"));
-	FastProjectilesArray.Reserve(10);
+	ConstructorHelpers::FObjectFinder<UPaperSprite> StraightProjectileAsset(TEXT("PaperSprite'/Game/Sprites/NormalShot.NormalShot'"));
+	StraightProjectilesArray.Reserve(10);
 	FastProjectileLocations.Reserve(10);
 	for (int i = 0; i < 10; i++)
 	{
-		//FString Name = "Projectile" + i;
 		FVector newLocation = FVector(0.0f, 0.0f, 0.0f);
 		FastProjectileLocations.Push(newLocation);
 
-		UPaperSpriteComponent* FastProjectile = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("FastProjectile" + i));
-		FastProjectile->SetSprite(FastProjectileAsset.Object);
+		UPaperSpriteComponent* StraightProjectile = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("StraightProjectile" + i));
+		StraightProjectile->SetSprite(StraightProjectileAsset.Object);
 
-		FastProjectile->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
-		FastProjectile->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-		FastProjectile->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
-		FastProjectile->SetVisibility(false);
-		FastProjectile->SetEnableGravity(false);
-		FastProjectile->SetSimulatePhysics(false);
-		FastProjectile->SetAbsolute(true, true, true);
+		StraightProjectile->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+		StraightProjectile->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		StraightProjectile->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+		StraightProjectile->SetVisibility(false);
+		StraightProjectile->SetEnableGravity(false);
+		StraightProjectile->SetSimulatePhysics(false);
+		StraightProjectile->SetAbsolute(true, true, true);
 
-		FastProjectilesArray.Push(FastProjectile);
+		StraightProjectilesArray.Push(StraightProjectile);
 	}
 
 	Health = 50;
@@ -98,36 +96,36 @@ AMonster::AMonster()
 	ProjectileRotation = FRotator(90.0f, 90.0f, 0.0f);
 	MonsterState = EMonsterStates::Idle;
 	ShipLocation = FVector(0.0f, 0.0f, 0.0f);
-	*/
+	
 }
 
 // Called when the game starts or when spawned
 void AMonster::BeginPlay()
 {
 	Super::BeginPlay();
-	//DamagedSound->Stop();
+	DamagedSound->Stop();
 
 	/*
-	for (int i = 0; i < SlowProjectilesArray.Num(); i++)
+	for (int i = 0; i < SinProjectilesArray.Num(); i++)
 	{
-		SlowProjectilesArray[i]->RelativeRotation = ProjectileRotation;
-		SlowProjectilesArray[i]->SetWorldLocation(FVector(0.0f, 0.0f, -100.0f));
+		SinProjectilesArray[i]->RelativeRotation = ProjectileRotation;
+		SinProjectilesArray[i]->SetWorldLocation(FVector(0.0f, 0.0f, -100.0f));
 	}
 	*/
-	/*
-	for (int i = 0; i < FastProjectilesArray.Num(); i++)
+	
+	for (int i = 0; i < StraightProjectilesArray.Num(); i++)
 	{
-		FastProjectilesArray[i]->RelativeRotation = ProjectileRotation;
-		FastProjectilesArray[i]->SetWorldLocation(FVector(0.0f, 0.0f, -100.0f));
+		StraightProjectilesArray[i]->RelativeRotation = ProjectileRotation;
+		StraightProjectilesArray[i]->SetWorldLocation(FVector(0.0f, 0.0f, -100.0f));
 	}
-	*/
+	
 }
 
 // Called every frame
 void AMonster::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
-/*
+
 	switch (MonsterState)
 	{
 	case EMonsterStates::Idle:
@@ -147,9 +145,9 @@ void AMonster::Tick( float DeltaTime )
 	case EMonsterStates::ErrorState:
 		break;
 	}
-	*/
+	
 }
-/*
+
 void AMonster::SetDamagedState()
 {
 	MonsterState = EMonsterStates::Damaged;
@@ -191,9 +189,9 @@ void AMonster::SetFastShotAnim()
 
 void AMonster::ShootFastProjectile()
 {
-	for (int i = 0; i < FastProjectilesArray.Num(); i++)
+	for (int i = 0; i < StraightProjectilesArray.Num(); i++)
 	{
-		if (FastProjectilesArray[i]->IsVisible())
+		if (StraightProjectilesArray[i]->IsVisible())
 		{
 			continue;
 		}
@@ -203,8 +201,8 @@ void AMonster::ShootFastProjectile()
 				0.0f, 0.0f);
 			FastProjectileLocations[i] = ShipLocation;
 
-			FastProjectilesArray[i]->SetWorldLocation(ProjectileLocation);
-			FastProjectilesArray[i]->SetVisibility(true);
+			StraightProjectilesArray[i]->SetWorldLocation(ProjectileLocation);
+			StraightProjectilesArray[i]->SetVisibility(true);
 			ShotsInUse++;
 			return;
 		}
@@ -214,22 +212,22 @@ void AMonster::ShootFastProjectile()
 
 void AMonster::UpdateProjectiles(float DeltaTime)
 {
-	for (int i = 0; i < FastProjectilesArray.Num(); i++)
+	for (int i = 0; i < StraightProjectilesArray.Num(); i++)
 	{
-		if (FastProjectilesArray[i]->IsVisible())
+		if (StraightProjectilesArray[i]->IsVisible())
 		{
-			FastProjectilesArray[i]->GetOverlappingComponents(OverlappingComponents);
+			StraightProjectilesArray[i]->GetOverlappingComponents(OverlappingComponents);
 			if (UpdateOverlappingProjectiles(OverlappingComponents)) //check if its overlapping to destroy it
 			{
-				FastProjectilesArray[i]->SetVisibility(false);
-				FastProjectilesArray[i]->SetWorldLocation(FVector(-100.0f,-100.0f,-100.0f));
+				StraightProjectilesArray[i]->SetVisibility(false);
+				StraightProjectilesArray[i]->SetWorldLocation(FVector(-100.0f,-100.0f,-100.0f));
 				continue;
 			}
 
-			FVector NewProjectileLocation = FVector(FastProjectilesArray[i]->GetComponentLocation().X + FastProjectileLocations[i].X*DeltaTime*2,
-				FastProjectilesArray[i]->GetComponentLocation().Y + FastProjectileLocations[i].Y * DeltaTime*2, 0.0f);
+			FVector NewProjectileLocation = FVector(StraightProjectilesArray[i]->GetComponentLocation().X + FastProjectileLocations[i].X*DeltaTime*2,
+				StraightProjectilesArray[i]->GetComponentLocation().Y + FastProjectileLocations[i].Y * DeltaTime*2, 0.0f);
 
-			FastProjectilesArray[i]->SetRelativeLocation(NewProjectileLocation);
+			StraightProjectilesArray[i]->SetRelativeLocation(NewProjectileLocation);
 		}
 	}
 }
@@ -278,4 +276,3 @@ bool AMonster::UpdateOverlappingProjectiles(TArray<UPrimitiveComponent*>& Overla
 	} 
 	return false;
 }
-*/

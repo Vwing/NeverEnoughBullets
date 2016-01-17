@@ -15,17 +15,12 @@ public:
 
 	virtual void BeginPlay() override;
 	virtual void Tick( float DeltaSeconds ) override;
-	/*
+	
 	class UPaperSpriteComponent* RootBounds;
 	class UPaperSpriteComponent* TopBounds;
 	class UPaperSpriteComponent* BottomBounds;
 	class UPaperSpriteComponent* LeftBounds;
 	class UPaperSpriteComponent* RightBounds;
-
-//	UPROPERTY(EditAnywhere, Category = "Stats")
-//	class UStaticMeshComponent* TopInnerBounds;
-	//UPROPERTY(EditAnywhere, Category = "Stats")
-	//class UStaticMeshComponent* BottomInnerBounds;
 
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		FRotator InnerBoundsRotation;
@@ -33,5 +28,5 @@ public:
 		FVector InnerTopBoundsLocation;
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		float BoundsRadius;
-	*/
+	
 };

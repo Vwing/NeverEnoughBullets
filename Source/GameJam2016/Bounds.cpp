@@ -12,7 +12,7 @@ ABounds::ABounds()
 	PrimaryActorTick.bCanEverTick = false;
 	//SetActorEnableCollision(true);
 
-	/*
+	
 	LeftBounds = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("LeftBoundsSprite"));
 	ConstructorHelpers::FObjectFinder<UPaperSprite> LeftBoundsAsset(TEXT("PaperSprite'/Game/Sprites/LeftBounds.LeftBounds'"));
 	LeftBounds->SetSprite(LeftBoundsAsset.Object);
@@ -51,7 +51,6 @@ ABounds::ABounds()
 	BottomBounds->GetBodyInstance()->bLockTranslation = true;
 	BottomBounds->SetAbsolute(false, false, false);
 
-	
 	RightBounds = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("RightBoundsSprite"));
 	ConstructorHelpers::FObjectFinder<UPaperSprite> RightBoundsAsset(TEXT("PaperSprite'/Game/Sprites/RightBounds.RightBounds'"));
 	RightBounds->SetSprite(RightBoundsAsset.Object);
@@ -77,17 +76,13 @@ ABounds::ABounds()
 	LeftBounds->RelativeRotation = FRotator(0.0f, 0.0f, 0.0f);
 
 	InnerBoundsRotation = FRotator(90.0f, 0.0f, 90.0f);
-	*/
+	
 }
 
 // Called when the game starts or when spawned
 void ABounds::BeginPlay()
 {
 	Super::BeginPlay();
-
-//	BoundsRadius = BottomInnerBounds->Bounds.BoxExtent.Z;
-
-	//InnerBottomBounds->SetWorldRotation(InnerBoundsRotation);
 }
 
 // Called every frame

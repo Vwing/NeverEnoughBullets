@@ -16,7 +16,6 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick( float DeltaSeconds ) override;
 
-	/*
 
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		float Health;
@@ -26,9 +25,9 @@ public:
 		TArray<UPrimitiveComponent*> OverlappingComponents;
 
 //	UPROPERTY(EditAnywhere, Category = "Projectiles")
-	//	TArray<class UPaperSpriteComponent*>  SlowProjectilesArray;
+	//	TArray<class UPaperSpriteComponent*>  SinProjectilesArray;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
-		TArray<class UPaperSpriteComponent*>  FastProjectilesArray;
+		TArray<class UPaperSpriteComponent*>  StraightProjectilesArray;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		FRotator ProjectileRotation;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
@@ -81,5 +80,4 @@ public:
 	void SetShootingFastState();
 	void SetFastShotAnim();
 	FTimerHandle MonsterHandle;
-	*/
 };

@@ -16,7 +16,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick( float DeltaSeconds ) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
-	/*
+	
 	void Fire();
 	void StopFire();
 	void MoveUp(float AxisValue);
@@ -78,14 +78,16 @@ public:
 	class UPaperSpriteComponent* ShipSprite;
 
 	UPROPERTY(EditAnywhere, Category = "Stats")
-
 	class UPaperSpriteComponent* AbsorbSprite; 
 
 	UPROPERTY(EditAnywhere, Category = "Audio")
 	class UAudioComponent* AbsorbSound;
 	UPROPERTY(EditAnywhere, Category = "Audio")
 	class UAudioComponent* ShootingSound;
-
+	UPROPERTY(EditAnywhere, Category = "Stats")
+	class UPaperSpriteComponent* TopInnerBounds;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+	class UPaperSpriteComponent* BottomInnerBounds;
 	UPROPERTY(EditAnywhere,Category= "Debug")
 	TArray<UPrimitiveComponent*> OverlappingComponents;
 
@@ -101,5 +103,5 @@ public:
 	bool bCanAbsorb;
 
 	FTimerHandle ShipHandle;
-	*/
-	};
+	
+};
