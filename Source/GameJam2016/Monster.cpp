@@ -10,7 +10,7 @@
 AMonster::AMonster()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
+	MaxShotsUsed = 20;
 
 	MonsterSprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("MonsterSprite"));
 	ConstructorHelpers::FObjectFinder<UPaperSprite> MonsterSpriteAsset(TEXT("PaperSprite'/Game/Sprites/BossSprites/Boss_Idle1.Boss_Idle1'"));
@@ -66,15 +66,16 @@ AMonster::AMonster()
 	SinProjectilesArray.Push(SlowProjectile);
 	} // actually closes here but cant comment whole section out
 	*/
+	
 
 
 	ConstructorHelpers::FObjectFinder<UPaperSprite> StraightProjectileAsset(TEXT("PaperSprite'/Game/Sprites/NormalShot.NormalShot'"));
 	StraightProjectilesArray.Reserve(10);
-	FastProjectileLocations.Reserve(10);
+	StraightProjectilesLocations.Reserve(10);
 	for (int i = 0; i < 10; i++)
 	{
 		FVector newLocation = FVector(0.0f, 0.0f, 0.0f);
-		FastProjectileLocations.Push(newLocation);
+		StraightProjectilesLocations.Push(newLocation);
 
 		UPaperSpriteComponent* StraightProjectile = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("StraightProjectile" + i));
 		StraightProjectile->SetSprite(StraightProjectileAsset.Object);
@@ -92,11 +93,24 @@ AMonster::AMonster()
 
 	Health = 50;
 	ShotsInUse = 0;
-	MaxShotsUsed = 10;
 	ProjectileRotation = FRotator(90.0f, 90.0f, 0.0f);
 	MonsterState = EMonsterStates::Idle;
 	ShipLocation = FVector(0.0f, 0.0f, 0.0f);
+	Difficulty = EDifficulty::Easy;
 
+	EasyMinShotMultiplier = 1.5f;
+	EasyMaxShotMultiplier = 2.0f;
+	NormalMinShotMultiplier = 2.0f;
+	NormalMaxShotMultiplier = 2.5f;
+	HardMinShotMultiplier = 2.5f;
+	HardMaxShotMultiplier = 3.0f;
+
+	EasyMinShootAgainTime = .5f;
+	EasyMaxShootAgainTime = 1.0f;
+	NormalMinShootAgainTime = .3f;
+	NormalMaxShootAgainTime = .7f;
+	HardMinShootAgainTime = .2f;
+	HardMaxShootAgainTime = .5f;
 }
 
 // Called when the game starts or when spawned
@@ -116,9 +130,12 @@ void AMonster::BeginPlay()
 	for (int i = 0; i < StraightProjectilesArray.Num(); i++)
 	{
 		StraightProjectilesArray[i]->RelativeRotation = ProjectileRotation;
-		StraightProjectilesArray[i]->SetWorldLocation(FVector(0.0f, 0.0f, -100.0f));
+		StraightProjectilesArray[i]->SetWorldLocation(FVector(200.0f, 200.0f, -100.0f));
 	}
 
+	MinShootTime = .5f;
+	MaxShootTime = 2;
+	bCanShoot = true;
 }
 
 // Called every frame
@@ -130,20 +147,31 @@ void AMonster::Tick(float DeltaTime)
 	{
 		UpdateProjectiles(DeltaTime);
 	}
+
+	if (bCanShoot == true)
+	{
+		bCanShoot = false;
+		float ShootAgainTime = GetShootAgainTime();
+		SetRandomShot();
+
+		GetWorldTimerManager().SetTimer(ShootAgainHandle, this, &AMonster::SetCanShoot, ShootAgainTime, false);
+	}
+
 	switch (MonsterState)
 	{
 	case EMonsterStates::Idle:
 		break;
 
-	case EMonsterStates::ShootingFast:
-
+	case EMonsterStates::ShootingStraight:
 		break;
 
 	case EMonsterStates::ShootingSlow:
 		break;
 
-	case EMonsterStates::Damaged:
+	case EMonsterStates::ShootingRetaliationShot:
+		break;
 
+	case EMonsterStates::Damaged:
 		break;
 
 	case EMonsterStates::ErrorState:
@@ -162,8 +190,11 @@ void AMonster::SetDamagedAnim()
 {
 	MonsterFlipbook->SetFlipbook(DamagedAnim);
 	DamagedSound->Play();
+	Health -= 1;
+	UpdateDifficulty();
 
-	GetWorldTimerManager().SetTimer(MonsterHandle, this, &AMonster::SetShootingFastState, 0.50f, false);
+	GetWorldTimerManager().SetTimer(ShootAgainHandle, this, &AMonster::SetShootingRetaliationState, 5.0f, false);
+	GetWorldTimerManager().SetTimer(MonsterAnimHandle, this, &AMonster::SetShootingRetaliationState, .40f, false);
 }
 
 void AMonster::SetIdleAnim()
@@ -177,10 +208,58 @@ void AMonster::SetIdleState()
 	SetIdleAnim();
 }
 
-void AMonster::SetShootingFastState()
+void AMonster::SetShootingRetaliationState()
 {
-	MonsterState = EMonsterStates::ShootingFast;
-	SetFastShotAnim();
+	MonsterState = EMonsterStates::ShootingRetaliationShot;
+	SetShootingRetaliationAnim();
+
+	ShootRetaliationProjectile();
+}
+
+void AMonster::SetShootingRetaliationAnim()
+{
+	MonsterFlipbook->SetFlipbook(FastShotAnim);
+
+	float ShootAgainTime = GetShootAgainTime();
+	GetWorldTimerManager().SetTimer(ShootAgainHandle, this, &AMonster::SetCanShoot, ShootAgainTime, false);
+	GetWorldTimerManager().SetTimer(MonsterAnimHandle, this, &AMonster::SetIdleState, 1.0f, false);
+}
+
+void AMonster::ShootRetaliationProjectile()
+{
+	for (int i = 0; i < StraightProjectilesArray.Num(); i++)
+	{
+		if (StraightProjectilesArray[i]->IsVisible())
+		{
+			continue;
+		}
+		else
+		{
+			FVector ProjectileLocation = GetActorLocation();
+			if (Difficulty == EDifficulty::Easy)
+			{
+				StraightProjectilesLocations[i] = ShipLocation * EasyMaxShotMultiplier;
+			}
+			else if (Difficulty == EDifficulty::Normal)
+			{
+				StraightProjectilesLocations[i] = ShipLocation* NormalMaxShotMultiplier;
+			}
+			else if (Difficulty == EDifficulty::Hard)
+			{
+				StraightProjectilesLocations[i] = ShipLocation* HardMaxShotMultiplier;
+			}
+
+			StraightProjectilesArray[i]->SetWorldLocation(ProjectileLocation);
+			StraightProjectilesArray[i]->SetVisibility(true);
+			ShotsInUse++;
+			return;
+		}
+	}
+}
+
+void AMonster::SetShootingStraightState()
+{
+	MonsterState = EMonsterStates::ShootingStraight;
 }
 
 void AMonster::SetFastShotAnim()
@@ -188,7 +267,7 @@ void AMonster::SetFastShotAnim()
 	MonsterFlipbook->SetFlipbook(FastShotAnim);
 	ShootFastProjectile();
 
-	GetWorldTimerManager().SetTimer(MonsterHandle, this, &AMonster::SetIdleState, 1.0f, false);
+	GetWorldTimerManager().SetTimer(MonsterAnimHandle, this, &AMonster::SetIdleState, .70f, false);
 }
 
 void AMonster::ShootFastProjectile()
@@ -202,7 +281,21 @@ void AMonster::ShootFastProjectile()
 		else
 		{
 			FVector ProjectileLocation = GetActorLocation();
-			FastProjectileLocations[i] = ShipLocation;
+			if (Difficulty == EDifficulty::Easy)
+			{
+				float ShotSpeedMultiplier = FMath::FRandRange(EasyMinShotMultiplier, EasyMaxShotMultiplier);
+				StraightProjectilesLocations[i] = ShipLocation * ShotSpeedMultiplier;
+			}
+			else if (Difficulty == EDifficulty::Normal)
+			{
+				float ShotSpeedMultiplier = FMath::FRandRange(NormalMinShotMultiplier, NormalMinShotMultiplier);
+				StraightProjectilesLocations[i] = ShipLocation* ShotSpeedMultiplier;
+			}
+			else if (Difficulty == EDifficulty::Hard)
+			{
+				float ShotSpeedMultiplier = FMath::FRandRange(HardMinShotMultiplier, HardMaxShotMultiplier);
+				StraightProjectilesLocations[i] = ShipLocation* ShotSpeedMultiplier;
+			}
 
 			StraightProjectilesArray[i]->SetWorldLocation(ProjectileLocation);
 			StraightProjectilesArray[i]->SetVisibility(true);
@@ -223,22 +316,27 @@ void AMonster::UpdateProjectiles(float DeltaTime)
 			if (UpdateOverlappingProjectiles(OverlappingComponents)) //check if its overlapping to destroy it
 			{
 				StraightProjectilesArray[i]->SetVisibility(false);
-				StraightProjectilesArray[i]->SetWorldLocation(FVector(-100.0f, -100.0f, -100.0f));
+				StraightProjectilesArray[i]->SetWorldLocation(FVector(100.0f, 100.0f, -100.0f));
 				continue;
 			}
 
-			FVector NewProjectileLocation = FVector(StraightProjectilesArray[i]->GetComponentLocation().X + FastProjectileLocations[i].X*DeltaTime * 2,
-				StraightProjectilesArray[i]->GetComponentLocation().Y + FastProjectileLocations[i].Y * DeltaTime * 2, 0.0f);
+			FVector NewProjectileLocation = FVector(StraightProjectilesArray[i]->GetComponentLocation().X + StraightProjectilesLocations[i].X*DeltaTime,
+				StraightProjectilesArray[i]->GetComponentLocation().Y + StraightProjectilesLocations[i].Y * DeltaTime, 0.0f);
 			DebugLocation = StraightProjectilesArray[i]->GetComponentLocation();
-			DebugLocation2 = FastProjectileLocations[i];
+			DebugLocation2 = StraightProjectilesLocations[i];
 
 			StraightProjectilesArray[i]->SetWorldLocation(NewProjectileLocation);
 		}
 	}
 }
 
-bool AMonster::UpdateOverlappingProjectiles(TArray<UPrimitiveComponent*>& OverlappingComponents)
+void AMonster::SetRandomShot()
 {
+	SetFastShotAnim();
+}
+
+bool AMonster::UpdateOverlappingProjectiles(TArray<UPrimitiveComponent*>& OverlappingComponents)
+{ //might cause crashing when both referencing each other
 	for (int i = 0; i < OverlappingComponents.Num(); i++)
 	{
 		if (OverlappingComponents[i]->GetName().Contains("ShipSprite"))
@@ -247,8 +345,7 @@ bool AMonster::UpdateOverlappingProjectiles(TArray<UPrimitiveComponent*>& Overla
 			AShip* ship = Cast<AShip>(OverlappingComponents[i]->GetAttachmentRootActor());
 
 			ship->bIsDead = true;
-			// ship death animation goes here
-			//monster = nullptr;
+			
 			ShotsInUse -= 1;
 			return true;
 		}
@@ -280,4 +377,42 @@ bool AMonster::UpdateOverlappingProjectiles(TArray<UPrimitiveComponent*>& Overla
 		}
 	}
 	return false;
+}
+
+void AMonster::UpdateDifficulty()
+{
+	if (Health > 30)
+	{
+		Difficulty = EDifficulty::Easy;
+	}
+	else if (Health > 15)
+	{
+		Difficulty = EDifficulty::Normal;
+	}
+	else
+	{
+		Difficulty = EDifficulty::Hard;
+	}
+}
+
+void AMonster::SetCanShoot()
+{
+	bCanShoot = true;
+}
+
+float AMonster::GetShootAgainTime()
+{
+	if (Difficulty == EDifficulty::Easy)
+	{
+		return FMath::FRandRange(EasyMinShootAgainTime, EasyMaxShootAgainTime);
+	}
+	else if (Difficulty == EDifficulty::Normal)
+	{
+		return FMath::FRandRange(NormalMinShootAgainTime, NormalMaxShootAgainTime);
+	}
+	else if (Difficulty == EDifficulty::Hard)
+	{
+		return FMath::FRandRange(HardMinShootAgainTime, HardMaxShootAgainTime);
+	}
+	return 2;
 }
