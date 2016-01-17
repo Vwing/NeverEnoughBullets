@@ -72,12 +72,13 @@ AShip::AShip()
 	TopInnerBounds->SetSprite(InnerBoundsAsset.Object);
 	TopInnerBounds->AttachTo(RootComponent);
 	TopInnerBounds->SetAbsolute(true, true, true);
+	//TopInnerBounds->SetVisibility(false);
 
 	BottomInnerBounds = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("BottomInnerBounds"));
 	BottomInnerBounds->SetSprite(InnerBoundsAsset.Object);
 	BottomInnerBounds->AttachTo(RootComponent);
 	BottomInnerBounds->SetAbsolute(true, true, true);
-
+	//BottomInnerBounds->SetVisibility(false);
 
 	ShootingSound = CreateDefaultSubobject<UAudioComponent>(TEXT("ShootingSound"));
 	ConstructorHelpers::FObjectFinder<USoundBase> ShootingSoundAsset(TEXT("SoundWave'/Game/SFX/Burn.Burn'"));
@@ -287,10 +288,10 @@ void AShip::UpdateOverlappingComponents(TArray<UPrimitiveComponent*>& Overlappin
 				return;
 			}
 
-			FVector TeleportLocation = FVector(GetActorLocation().X, bounds->BottomBounds->GetComponentLocation().Y + 10,0.0f);
-				//bounds->BottomInnerBounds->GetComponentLocation().Y,
-			
-				
+			FVector TeleportLocation = FVector(GetActorLocation().X,
+				BottomInnerBounds->GetComponentLocation().Y - 10,
+				0.0f);				
+			DebugLocation = BottomInnerBounds->GetComponentLocation();
 
 			SetActorLocation(TeleportLocation);
 		}
@@ -304,8 +305,10 @@ void AShip::UpdateOverlappingComponents(TArray<UPrimitiveComponent*>& Overlappin
 				return;
 			}
 
-			FVector TeleportLocation = FVector(GetActorLocation().X, bounds->TopBounds->GetComponentLocation().Y - 10, 0.0f);
-				//bounds->TopInnerBounds->GetComponentLocation().Y,  
+			FVector TeleportLocation = FVector(GetActorLocation().X,
+				TopInnerBounds->GetComponentLocation().Y,
+				0.0f);
+
 			SetActorLocation(TeleportLocation);
 		}
 		else if (OverlappingComponents[i]->GetName().Contains("LeftBoundsSprite"))

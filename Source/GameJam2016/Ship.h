@@ -76,7 +76,6 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Stats")
 	class UPaperSpriteComponent* ShipSprite;
-
 	UPROPERTY(EditAnywhere, Category = "Stats")
 	class UPaperSpriteComponent* AbsorbSprite; 
 
@@ -93,7 +92,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Debug")
 		FString DebugString;
-	
+	UPROPERTY(EditAnywhere, Category = "Debug")
+		FVector DebugLocation;
+
 	UPROPERTY(EditAnywhere, Category = "Stats")
 	class AMonster* MonsterReference;
 

@@ -126,13 +126,17 @@ void AMonster::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 
+	if (ShotsInUse > 0)
+	{
+		UpdateProjectiles(DeltaTime);
+	}
 	switch (MonsterState)
 	{
 	case EMonsterStates::Idle:
 		break;
 
 	case EMonsterStates::ShootingFast:
-		UpdateProjectiles(DeltaTime);
+		
 		break;
 
 	case EMonsterStates::ShootingSlow:
@@ -197,8 +201,7 @@ void AMonster::ShootFastProjectile()
 		}
 		else
 		{
-			FVector ProjectileLocation = FVector(0.0f,
-				0.0f, 0.0f);
+			FVector ProjectileLocation = GetActorLocation();
 			FastProjectileLocations[i] = ShipLocation;
 
 			StraightProjectilesArray[i]->SetWorldLocation(ProjectileLocation);
@@ -226,8 +229,10 @@ void AMonster::UpdateProjectiles(float DeltaTime)
 
 			FVector NewProjectileLocation = FVector(StraightProjectilesArray[i]->GetComponentLocation().X + FastProjectileLocations[i].X*DeltaTime*2,
 				StraightProjectilesArray[i]->GetComponentLocation().Y + FastProjectileLocations[i].Y * DeltaTime*2, 0.0f);
+			DebugLocation = StraightProjectilesArray[i]->GetComponentLocation();
+			DebugLocation2 = FastProjectileLocations[i];
 
-			StraightProjectilesArray[i]->SetRelativeLocation(NewProjectileLocation);
+			StraightProjectilesArray[i]->SetWorldLocation(NewProjectileLocation);
 		}
 	}
 }

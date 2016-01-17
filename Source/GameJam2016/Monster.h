@@ -53,6 +53,10 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Debug")
 		FString DebugString;
+	UPROPERTY(EditAnywhere, Category = "Debug")
+		FVector DebugLocation;
+	UPROPERTY(EditAnywhere, Category = "Debug")
+		FVector DebugLocation2;
 
 	struct EMonsterStates
 	{
