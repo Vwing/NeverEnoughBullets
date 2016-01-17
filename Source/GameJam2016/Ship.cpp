@@ -75,8 +75,8 @@ AShip::AShip()
 	
 
 	ShipState = EShipStates::Static;
-	MaxVerticalSpeed = 500.0f;
-	MaxHorizontalSpeed = 500.0f;
+	MaxVerticalSpeed = 900.0f;
+	MaxHorizontalSpeed = 900.0f;
 	CurrentVerticalSpeed = 0.0f;
 	CurrentHorizontalSpeed = 0.0f;
 
@@ -89,7 +89,7 @@ AShip::AShip()
 	bCanMoveRight = true;
 	bIsDead = false;
 
-	ProjectileSpeed = 600.0f;
+	ProjectileSpeed = 700.0f;
 	ProjectileRotation = FRotator(90.0f, 90.0f, 0.0f);
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
@@ -256,6 +256,7 @@ void AShip::UpdateOverlappingComponents(TArray<UPrimitiveComponent*>& Overlappin
 {
 	for (int i = 0; i < OverlappingComponents.Num(); ++i)
 	{
+		DebugString = OverlappingComponents[i]->GetName();
 		if (OverlappingComponents[i]->GetName().Contains("TopBoundsSprite"))
 		{
 			ABounds* bounds = Cast<ABounds>(OverlappingComponents[i]->GetAttachmentRootActor());
@@ -266,9 +267,9 @@ void AShip::UpdateOverlappingComponents(TArray<UPrimitiveComponent*>& Overlappin
 				return;
 			}
 
-			FVector TeleportLocation = FVector(GetActorLocation().X, 
-				-GetActorLocation().Y - bounds->BoundsRadius - 5,  // we rotated the ship, its actually portrait naturally, we rotated it, so we use Z
-				0.0f); // code fore teleportation
+			FVector TeleportLocation = FVector(GetActorLocation().X, bounds->BottomBounds->GetComponentLocation().Y + 10,0.0f);
+				//bounds->BottomInnerBounds->GetComponentLocation().Y,
+			
 				
 
 			SetActorLocation(TeleportLocation);
@@ -277,15 +278,14 @@ void AShip::UpdateOverlappingComponents(TArray<UPrimitiveComponent*>& Overlappin
 		{
 			ABounds* bounds = Cast<ABounds>(OverlappingComponents[i]->GetAttachmentRootActor());
 
-		//	if (bounds == nullptr || bounds == NULL)
+			if (bounds == nullptr || bounds == NULL)
 			{
-		//		ShipState = EShipStates::ErrorState;
-		//		return;
+				ShipState = EShipStates::ErrorState;
+				return;
 			}
 
-			FVector TeleportLocation = FVector(GetActorLocation().X,
-				-GetActorLocation().Y - 5, //+ bounds->BoundsRadius/2,  // we rotated the ship, its actually portrait naturally, we rotated it, so we use X
-				0.0f); // code fore teleportation
+			FVector TeleportLocation = FVector(GetActorLocation().X, bounds->TopBounds->GetComponentLocation().Y - 10, 0.0f);
+				//bounds->TopInnerBounds->GetComponentLocation().Y,  
 			SetActorLocation(TeleportLocation);
 		}
 		else if (OverlappingComponents[i]->GetName().Contains("LeftBoundsSprite"))

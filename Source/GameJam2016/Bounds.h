@@ -11,7 +11,6 @@ class GAMEJAM2016_API ABounds : public AActor
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	ABounds();
 
 	virtual void BeginPlay() override;
@@ -22,9 +21,16 @@ public:
 	class UPaperSpriteComponent* BottomBounds;
 	class UPaperSpriteComponent* LeftBounds;
 	class UPaperSpriteComponent* RightBounds;
-	class UPaperSpriteComponent* InnerTopBounds;
-	class UPaperSpriteComponent* InnerBottomBounds;
 
+//	UPROPERTY(EditAnywhere, Category = "Stats")
+//	class UStaticMeshComponent* TopInnerBounds;
+	//UPROPERTY(EditAnywhere, Category = "Stats")
+	//class UStaticMeshComponent* BottomInnerBounds;
+
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		FRotator InnerBoundsRotation;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		FVector InnerTopBoundsLocation;
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		float BoundsRadius;
 };
