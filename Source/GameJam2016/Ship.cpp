@@ -104,13 +104,12 @@ AShip::AShip()
 	bCanMoveRight = true;
 	bIsDead = false;
 
-	ProjectileSpeed = 700.0f;
+	ProjectileSpeed = 1200.0f;
 	ProjectileRotation = FRotator(90.0f, 90.0f, 0.0f);
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 	DebugString = "";
 	MonsterReference = nullptr;
-
 }
 
 // Called when the game starts or when spawned
@@ -127,6 +126,8 @@ void AShip::BeginPlay()
 
 	AbsorbSprite->RelativeRotation = ProjectileRotation;
 	AbsorbSprite->SetWorldLocation(FVector(-100.0f, 200.0f, -200.0f));
+
+	UpdateMonster();
 	Super::BeginPlay();
 
 }
@@ -395,15 +396,15 @@ bool AShip::UpdateOverlappingProjectiles(TArray<UPrimitiveComponent*>& Overlappi
 		DebugString = OverlappingComponents[i]->GetName();
 		if (OverlappingComponents[i]->GetName().Contains("MonsterSprite"))
 		{
-			AMonster* monster = Cast<AMonster>(OverlappingComponents[i]->GetAttachmentRootActor());
-			monster->Health -= 1;
-			monster->SetDamagedState();
-			monster->ShipLocation = GetActorLocation();
-			//MonsterReference->Health -= 1;
-			//	MonsterReference->SetDamagedState();
-			//	MonsterReference->ShipLocation = GetActorLocation();
-			//UpdateMonster();
-			//monster = nullptr;
+			if (MonsterReference == nullptr ||
+				MonsterReference == NULL)
+			{
+				ShipState = EShipStates::ErrorState;
+				return false;
+			}
+			MonsterReference->ShipLocation = GetActorLocation();
+			MonsterReference->SetDamagedState();
+			
 			ShotsInUse -= 1;
 			return true;
 		}
@@ -451,4 +452,7 @@ void AShip::UpdateMonster()
 		ShipState = EShipStates::ErrorState;
 		return;
 	}
+
+	MonsterReference->ShipLocation = GetActorLocation();
+	GetWorldTimerManager().SetTimer(UpdateMonsterHandle, this, &AShip::UpdateMonster, 1.0f, false);
 }

@@ -47,8 +47,8 @@ public:
 		int8 MaxShotsUsed;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		int8 ShotsInUse;
-	UPROPERTY(EditAnywhere, Category = "Projectiles")
-		int8 Ammo;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectiles")
+		int32 Ammo;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		TArray<class UPaperSpriteComponent*>  ProjectilesArray;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
@@ -100,9 +100,11 @@ public:
 
 	bool bCanMoveLeft;
 	bool bCanMoveRight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 	bool bIsDead;
 	bool bCanAbsorb;
 
 	FTimerHandle ShipHandle;
-
+	FTimerHandle UpdateMonsterHandle;
 };
