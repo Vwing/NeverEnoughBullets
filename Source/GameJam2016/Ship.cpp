@@ -4,6 +4,7 @@
 #include "Ship.h"
 #include "PaperSpriteComponent.h"
 #include "Bounds.h"
+#include "Monster.h"
 #include "Projectile.h"
 
 // Sets default values
@@ -75,9 +76,10 @@ void AShip::BeginPlay()
 	for (int i = 0; i < ProjectilesArray.Num(); i++)
 	{
 		ProjectilesArray[i]->RelativeRotation = ProjectileRotation;
+		ProjectilesArray[i]->SetWorldLocation(FVector(0.0f, 0.0f, -100.0f));
 	}
-	Super::BeginPlay();
 
+	Super::BeginPlay();
 }
 
 // Called every frame
@@ -217,7 +219,7 @@ void AShip::UpdateOverlappingComponents(TArray<UPrimitiveComponent*>& Overlappin
 			}
 
 			FVector TeleportLocation = FVector(GetActorLocation().X, 
-				-GetActorLocation().Y - bounds->BottomBounds->Bounds.BoxExtent.Z,  // we rotated the ship, its actually portrait naturally, we rotated it, so we use X
+				-GetActorLocation().Y - bounds->BoundsRadius - 5,  // we rotated the ship, its actually portrait naturally, we rotated it, so we use Z
 				0.0f); // code fore teleportation
 				
 
@@ -234,7 +236,7 @@ void AShip::UpdateOverlappingComponents(TArray<UPrimitiveComponent*>& Overlappin
 			}
 
 			FVector TeleportLocation = FVector(GetActorLocation().X,
-				-GetActorLocation().Y, //+ bounds->BottomBounds->Bounds.BoxExtent.X,  // we rotated the ship, its actually portrait naturally, we rotated it, so we use X
+				-GetActorLocation().Y - 5, //+ bounds->BoundsRadius/2,  // we rotated the ship, its actually portrait naturally, we rotated it, so we use X
 				0.0f); // code fore teleportation
 			SetActorLocation(TeleportLocation);
 		}
@@ -298,10 +300,42 @@ void AShip::UpdateProjectiles(float DeltaTIme)
 	{
 		if (ProjectilesArray[i]->IsVisible())
 		{
+			ProjectilesArray[i]->GetOverlappingComponents(OverlappingComponents);
+			if (UpdateOverlappingProjectiles(OverlappingComponents)) //check if its overlapping to destroy it
+			{
+				ProjectilesArray[i]->SetVisibility(false);
+				ProjectilesArray[i]->SetWorldLocation(FVector(0.0f, 0.0f, -100.0f));
+				continue;
+			}
+
 			FVector NewProjectileLocation = FVector(ProjectilesArray[i]->GetComponentLocation().X + ProjectileSpeed*DeltaTIme,
 				ProjectilesArray[i]->GetComponentLocation().Y, 0.0f);
 
 			ProjectilesArray[i]->SetRelativeLocation(NewProjectileLocation);
 		}
 	}
+}
+
+bool AShip::UpdateOverlappingProjectiles(TArray<UPrimitiveComponent*>& OverlappingComponents)
+{
+	for (int i = 0; i < OverlappingComponents.Num(); i++)
+	{
+		DebugString = OverlappingComponents[i]->GetName();
+		if (OverlappingComponents[i]->GetName().Contains("MonsterSprite"))
+		{
+			AMonster* monster = Cast<AMonster>(OverlappingComponents[i]->GetAttachmentRootActor());
+
+			monster->Health -= 1;
+			monster->SetDamagedState();
+			//monster = nullptr;
+			ShotsInUse -= 1;
+			return true;
+		}
+		else if (OverlappingComponents[i]->GetName().Contains("RightBoundsSprite"))
+		{
+			ShotsInUse -= 1;
+			return true;
+		}
+	}
+	return false;
 }

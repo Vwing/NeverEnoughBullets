@@ -83,9 +83,7 @@ ABounds::ABounds()
 void ABounds::BeginPlay()
 {
 	Super::BeginPlay();
-
-	
-	SetActorScale3D(FVector(7.0f, 7.0f, 7.0f));
+	BoundsRadius = LeftBounds->Bounds.BoxExtent.Z;
 }
 
 // Called every frame

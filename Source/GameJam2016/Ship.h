@@ -25,7 +25,7 @@ public:
 	void ShootProjectile();
 	void UpdateProjectiles(float DeltaTime);
 	void UpdateOverlappingComponents(TArray<UPrimitiveComponent*>& OverlappingComponents);
-	
+	bool UpdateOverlappingProjectiles(TArray<UPrimitiveComponent*>& OverlappingComponents);
 	
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		float MaxVerticalSpeed;
@@ -46,7 +46,6 @@ public:
 		TArray<class UPaperSpriteComponent*>  ProjectilesArray;
 	UPROPERTY(EditAnywhere, Category = "Projectile")
 		FRotator ProjectileRotation;
-
 	UPROPERTY(EditAnywhere, Category = "Projectile")
 		bool bCanShoot;
 
