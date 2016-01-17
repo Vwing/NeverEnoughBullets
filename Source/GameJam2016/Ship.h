@@ -14,9 +14,9 @@ public:
 	AShip();
 
 	virtual void BeginPlay() override;
-	virtual void Tick( float DeltaSeconds ) override;
+	virtual void Tick(float DeltaSeconds) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
-	
+
 	void Fire();
 	void StopFire();
 	void MoveUp(float AxisValue);
@@ -24,22 +24,22 @@ public:
 	void Absorb();
 	void StopAbsorb();
 	void InitiateAbsorb();
-	
+
 	void MakeMovements(float DeltaTime);
 	void ShootProjectile();
 	void UpdateProjectiles(float DeltaTime);
 	void UpdateMonster();
 	void UpdateOverlappingComponents(TArray<UPrimitiveComponent*>& OverlappingComponents);
 	bool UpdateOverlappingProjectiles(TArray<UPrimitiveComponent*>& OverlappingComponents);
-	
+
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		float MaxVerticalSpeed;
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		float MaxHorizontalSpeed;
 	UPROPERTY(EditAnywhere, Category = "Stats")
-	float CurrentHorizontalSpeed;
-	UPROPERTY(EditAnywhere,Category = "Stats")
-	float CurrentVerticalSpeed;
+		float CurrentHorizontalSpeed;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		float CurrentVerticalSpeed;
 
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		float ProjectileSpeed;
@@ -77,7 +77,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Stats")
 	class UPaperSpriteComponent* ShipSprite;
 	UPROPERTY(EditAnywhere, Category = "Stats")
-	class UPaperSpriteComponent* AbsorbSprite; 
+	class UPaperSpriteComponent* AbsorbSprite;
 
 	UPROPERTY(EditAnywhere, Category = "Audio")
 	class UAudioComponent* AbsorbSound;
@@ -87,8 +87,8 @@ public:
 	class UPaperSpriteComponent* TopInnerBounds;
 	UPROPERTY(EditAnywhere, Category = "Stats")
 	class UPaperSpriteComponent* BottomInnerBounds;
-	UPROPERTY(EditAnywhere,Category= "Debug")
-	TArray<UPrimitiveComponent*> OverlappingComponents;
+	UPROPERTY(EditAnywhere, Category = "Debug")
+		TArray<UPrimitiveComponent*> OverlappingComponents;
 
 	UPROPERTY(EditAnywhere, Category = "Debug")
 		FString DebugString;
@@ -104,5 +104,5 @@ public:
 	bool bCanAbsorb;
 
 	FTimerHandle ShipHandle;
-	
+
 };

@@ -9,12 +9,12 @@ UCLASS()
 class GAMEJAM2016_API AMonster : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 
 	AMonster();
 	virtual void BeginPlay() override;
-	virtual void Tick( float DeltaSeconds ) override;
+	virtual void Tick(float DeltaSeconds) override;
 
 
 	UPROPERTY(EditAnywhere, Category = "Stats")
@@ -24,7 +24,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		TArray<UPrimitiveComponent*> OverlappingComponents;
 
-//	UPROPERTY(EditAnywhere, Category = "Projectiles")
+	//	UPROPERTY(EditAnywhere, Category = "Projectiles")
 	//	TArray<class UPaperSpriteComponent*>  SinProjectilesArray;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		TArray<class UPaperSpriteComponent*>  StraightProjectilesArray;
@@ -39,7 +39,7 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Anim")
 	class UPaperFlipbookComponent* MonsterFlipbook;
-	UPROPERTY(EditAnywhere,Category="Anim")
+	UPROPERTY(EditAnywhere, Category = "Anim")
 	class UPaperFlipbook* IdleAnim;
 	UPROPERTY(EditAnywhere, Category = "Anim")
 	class UPaperFlipbook* DamagedAnim;
@@ -72,7 +72,7 @@ public:
 	};
 
 	EMonsterStates::Type MonsterState;
-	
+
 	void ShootFastProjectile();
 	void UpdateProjectiles(float DeltaTime);
 	bool UpdateOverlappingProjectiles(TArray<UPrimitiveComponent*>& OverlappingComponents);
