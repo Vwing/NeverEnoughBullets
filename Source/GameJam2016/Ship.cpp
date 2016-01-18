@@ -56,12 +56,12 @@ AShip::AShip()
 	AbsorbSprite->GetBodyInstance()->bUseCCD = true;
 	AbsorbSprite->SetAbsolute(true, true, true);
 
-	ConstructorHelpers::FObjectFinder<UPaperSprite> PlayerProjectileAsset(TEXT("PaperSprite'/Game/Sprites/NormalShot.NormalShot'"));
+	ConstructorHelpers::FObjectFinder<UPaperFlipbook> PlayerProjectileAsset(TEXT("PaperFlipbook'/Game/Sprites/BulletSprites/PlayerBullet.PlayerBullet'"));
 	ProjectilesArray.Reserve(10);
 	for (int i = 0; i < 10; i++)
 	{
-		UPaperSpriteComponent* PlayerProjectile = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("PlayerProjectile" + i));
-		PlayerProjectile->SetSprite(PlayerProjectileAsset.Object);
+		UPaperFlipbookComponent* PlayerProjectile = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("PlayerProjectilez" + i));
+		PlayerProjectile->SetFlipbook(PlayerProjectileAsset.Object);
 
 		PlayerProjectile->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
 		PlayerProjectile->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -73,7 +73,7 @@ AShip::AShip()
 
 		ProjectilesArray.Push(PlayerProjectile);
 	}
-
+	
 
 	TopInnerBounds = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("TopInnerBounds"));
 	ConstructorHelpers::FObjectFinder<UPaperSprite> InnerBoundsAsset(TEXT("PaperSprite'/Game/Sprites/InnerBounds.InnerBounds'"));
@@ -127,16 +127,22 @@ void AShip::BeginPlay()
 
 	ShootingSound->Stop();
 	AbsorbSound->Stop();
+	
+	
 	for (int i = 0; i < ProjectilesArray.Num(); i++)
 	{
 		ProjectilesArray[i]->RelativeRotation = ProjectileRotation;
-		ProjectilesArray[i]->SetWorldLocation(FVector(0.0f, 0.0f, -100.0f));
+		ProjectilesArray[i]->SetWorldLocation(FVector(-200.0f, -300.0f, -100.0f));
 	}
+	
 
 	AbsorbSprite->RelativeRotation = ProjectileRotation;
 	AbsorbSprite->SetWorldLocation(FVector(-100.0f, 200.0f, -200.0f));
 
+	ShipFlipbook->SetWorldScale3D(FVector(3.0f, 3.0f, 3.0f));
+	ShipSprite->SetWorldScale3D(FVector(1.3f, 1.0f, .50f));
 	UpdateMonster();
+
 	Super::BeginPlay();
 
 }
@@ -390,10 +396,10 @@ void AShip::UpdateProjectiles(float DeltaTIme)
 				continue;
 			}
 
-			FVector NewProjectileLocation = FVector(ProjectilesArray[i]->GetComponentLocation().X + ProjectileSpeed*DeltaTIme,
-				ProjectilesArray[i]->GetComponentLocation().Y, 0.0f);
+			//FVector NewProjectileLocation = FVector(ProjectilesArray[i]->GetComponentLocation().X + ProjectileSpeed*DeltaTIme,
+			//	ProjectilesArray[i]->GetComponentLocation().Y, 0.0f);
 
-			ProjectilesArray[i]->SetRelativeLocation(NewProjectileLocation);
+			//ProjectilesArray[i]->SetRelativeLocation(NewProjectileLocation);
 		}
 	}
 }
