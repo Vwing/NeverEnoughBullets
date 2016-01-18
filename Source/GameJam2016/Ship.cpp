@@ -24,7 +24,7 @@ AShip::AShip()
 	ShipFlipbook = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("ShipFlipbook"));
 	ShipFlipbook->SetFlipbook(IdleAnim);
 	ShipFlipbook->AttachTo(RootComponent);
-	ShipFlipbook->SetAbsolute(false,false,true);
+	ShipFlipbook->SetAbsolute(false,true,true);
 	ShipFlipbook->RelativeLocation = FVector(0.0f, 0.0f, 0.0f);
 
 	ShipSprite->bGenerateOverlapEvents = true;
@@ -38,6 +38,7 @@ AShip::AShip()
 	ShipSprite->SetEnableGravity(false);
 	ShipSprite->bMultiBodyOverlap = true;
 	ShipSprite->GetBodyInstance()->bUseCCD = true;
+	ShipSprite->SetWorldScale3D(FVector(1.3f, 1.0f, 0.5f));
 
 	AbsorbSprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("AbsorbSprite"));
 	ConstructorHelpers::FObjectFinder<UPaperSprite> AbsorbSpriteAsset(TEXT("PaperSprite'/Game/Sprites/AbsorbSprite.AbsorbSprite'"));
@@ -56,12 +57,13 @@ AShip::AShip()
 	AbsorbSprite->GetBodyInstance()->bUseCCD = true;
 	AbsorbSprite->SetAbsolute(true, true, true);
 
-	ConstructorHelpers::FObjectFinder<UPaperFlipbook> PlayerProjectileAsset(TEXT("PaperFlipbook'/Game/Sprites/BulletSprites/PlayerBullet.PlayerBullet'"));
+	ConstructorHelpers::FObjectFinder<UPaperSprite> PlayerProjectileSpriteAsset(TEXT("PaperSprite'/Game/Sprites/NormalShot.NormalShot'"));
+	ConstructorHelpers::FObjectFinder<UPaperFlipbook> PlayerProjectileAnimAsset(TEXT("PaperFlipbook'/Game/Sprites/BulletSprites/PlayerBullet.PlayerBullet'"));
 	ProjectilesArray.Reserve(10);
 	for (int i = 0; i < 10; i++)
 	{
-		UPaperFlipbookComponent* PlayerProjectile = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("PlayerProjectilez" + i));
-		PlayerProjectile->SetFlipbook(PlayerProjectileAsset.Object);
+		UPaperSpriteComponent* PlayerProjectile = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("PlayerProjectileSprite" + i));
+		PlayerProjectile->SetSprite(PlayerProjectileSpriteAsset.Object);
 
 		PlayerProjectile->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
 		PlayerProjectile->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -70,6 +72,13 @@ AShip::AShip()
 		PlayerProjectile->SetEnableGravity(false);
 		PlayerProjectile->SetSimulatePhysics(false);
 		PlayerProjectile->SetAbsolute(true, true, true);
+
+		UPaperFlipbookComponent* PlayerProjectileAnim = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("PlayerProjectileAnim" + i));
+		PlayerProjectileAnim->SetFlipbook(PlayerProjectileAnimAsset.Object);
+		PlayerProjectileAnim->AttachTo(PlayerProjectile);
+		PlayerProjectileAnim->SetAbsolute(true, true, true);
+		PlayerProjectileAnim->SetWorldScale3D(FVector(5.0f, 5.0f, 5.0f));
+		PlayerProjectileAnim->SetVisibility(false);
 
 		ProjectilesArray.Push(PlayerProjectile);
 	}
@@ -119,6 +128,8 @@ AShip::AShip()
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 	DebugString = "";
 	MonsterReference = nullptr;
+
+	ProjectileAnimOffset = FVector(-75.0f, 0.0f, 1.0f);
 }
 
 // Called when the game starts or when spawned
@@ -133,6 +144,10 @@ void AShip::BeginPlay()
 	{
 		ProjectilesArray[i]->RelativeRotation = ProjectileRotation;
 		ProjectilesArray[i]->SetWorldLocation(FVector(-200.0f, -300.0f, -100.0f));
+
+		ProjectilesArray[i]->GetChildComponent(0)->SetWorldScale3D(FVector(8.0f, 8.0f, 8.0f));
+		ProjectilesArray[i]->GetChildComponent(0)->RelativeRotation = ProjectileRotation;
+		ProjectilesArray[i]->GetChildComponent(0)->SetWorldLocation(FVector(-200.0f, -300.0f, -100.0f));
 	}
 	
 
@@ -365,7 +380,7 @@ void AShip::ShootProjectile()
 {
 	for (int i = 0; i < ProjectilesArray.Num(); i++)
 	{
-		if (ProjectilesArray[i]->IsVisible())
+		if (ProjectilesArray[i]->GetChildComponent(0)->IsVisible())
 		{
 			continue;
 		}
@@ -375,7 +390,9 @@ void AShip::ShootProjectile()
 				GetActorLocation().Y, 0.0f);
 
 			ProjectilesArray[i]->SetWorldLocation(ProjectileLocation);
-			ProjectilesArray[i]->SetVisibility(true);
+			ProjectilesArray[i]->SetVisibility(false);
+			ProjectilesArray[i]->GetChildComponent(0)->SetVisibility(true);
+			ProjectilesArray[i]->GetChildComponent(0)->SetWorldLocation(ProjectileLocation + ProjectileAnimOffset);
 			ShotsInUse++;
 			return;
 		}
@@ -386,20 +403,23 @@ void AShip::UpdateProjectiles(float DeltaTIme)
 {
 	for (int i = 0; i < ProjectilesArray.Num(); i++)
 	{
-		if (ProjectilesArray[i]->IsVisible())
+		if (ProjectilesArray[i]->GetChildComponent(0)->IsVisible())
 		{
 			ProjectilesArray[i]->GetOverlappingComponents(OverlappingComponents);
 			if (UpdateOverlappingProjectiles(OverlappingComponents)) //check if its overlapping to destroy it
 			{
 				ProjectilesArray[i]->SetVisibility(false);
-				ProjectilesArray[i]->SetWorldLocation(FVector(0.0f, 0.0f, -100.0f));
+				ProjectilesArray[i]->GetChildComponent(0)->SetVisibility(false);
+				ProjectilesArray[i]->GetChildComponent(0)->SetWorldLocation(FVector(-100.0f, -10.0f, -100.0f));
+				ProjectilesArray[i]->SetWorldLocation(FVector(-100.0f, -10.0f, -100.0f));
 				continue;
 			}
 
-			//FVector NewProjectileLocation = FVector(ProjectilesArray[i]->GetComponentLocation().X + ProjectileSpeed*DeltaTIme,
-			//	ProjectilesArray[i]->GetComponentLocation().Y, 0.0f);
+			FVector NewProjectileLocation = FVector(ProjectilesArray[i]->GetComponentLocation().X + ProjectileSpeed*DeltaTIme,
+				ProjectilesArray[i]->GetComponentLocation().Y, 0.0f);
 
-			//ProjectilesArray[i]->SetRelativeLocation(NewProjectileLocation);
+			ProjectilesArray[i]->SetRelativeLocation(NewProjectileLocation);
+			ProjectilesArray[i]->GetChildComponent(0)->SetWorldLocation(NewProjectileLocation + ProjectileAnimOffset);
 		}
 	}
 }
@@ -417,6 +437,7 @@ bool AShip::UpdateOverlappingProjectiles(TArray<UPrimitiveComponent*>& Overlappi
 				ShipState = EShipStates::ErrorState;
 				return false;
 			}
+
 			MonsterReference->ShipLocation = GetActorLocation();
 			MonsterReference->SetDamagedState();
 			

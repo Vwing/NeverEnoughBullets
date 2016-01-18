@@ -50,7 +50,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectiles")
 		int32 Ammo;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
-		TArray<class UPaperFlipbookComponent*>  ProjectilesArray;
+		TArray<class UPaperSpriteComponent*>  ProjectilesArray;
 
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		FRotator ProjectileRotation;
@@ -114,4 +114,7 @@ public:
 
 	FTimerHandle ShipHandle;
 	FTimerHandle UpdateMonsterHandle;
+
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
+		FVector ProjectileAnimOffset;
 };

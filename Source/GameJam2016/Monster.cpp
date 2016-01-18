@@ -151,6 +151,7 @@ AMonster::AMonster()
 void AMonster::BeginPlay()
 {
 	Super::BeginPlay();
+
 	DamagedSound->Stop();
 
 	
@@ -176,7 +177,7 @@ void AMonster::BeginPlay()
 
 	MinShootTime = .5f;
 	MaxShootTime = 2;
-	bCanShoot = true;
+	bCanShoot = false;
 }
 
 // Called every frame
