@@ -47,8 +47,23 @@ AMonster::AMonster()
 	MonsterFlipbook->AttachTo(MonsterSprite);
 
 	DamagedSound = CreateDefaultSubobject<UAudioComponent>(TEXT("DamagedSound"));
-	ConstructorHelpers::FObjectFinder<USoundBase> DamagedSoundAsset(TEXT("SoundWave'/Game/SFX/Death.Death'"));
+	ConstructorHelpers::FObjectFinder<USoundBase> DamagedSoundAsset(TEXT("SoundWave'/Game/SFX/Monster_Hurt.Monster_Hurt'"));
 	DamagedSound->SetSound(DamagedSoundAsset.Object);
+	DangerSound = CreateDefaultSubobject<UAudioComponent>(TEXT("DangerSound"));
+	ConstructorHelpers::FObjectFinder<USoundBase> DangerSoundAsset(TEXT("SoundWave'/Game/SFX/Danger.Danger'"));
+	DangerSound->SetSound(DangerSoundAsset.Object);
+	IdleSound = CreateDefaultSubobject<UAudioComponent>(TEXT("IdleSound"));
+	ConstructorHelpers::FObjectFinder<USoundBase> IdleSoundAsset(TEXT("SoundWave'/Game/SFX/Monster_Idle.Monster_Idle'"));
+	IdleSound->SetSound(IdleSoundAsset.Object);
+	RetaliationSound = CreateDefaultSubobject<UAudioComponent>(TEXT("RetaliationSound"));
+	ConstructorHelpers::FObjectFinder<USoundBase> RetaliationSoundAsset(TEXT("SoundWave'/Game/SFX/Retaliation_Noise.Retaliation_Noise'"));
+	RetaliationSound->SetSound(RetaliationSoundAsset.Object);
+	RoarSound = CreateDefaultSubobject<UAudioComponent>(TEXT("RoarSound"));
+	ConstructorHelpers::FObjectFinder<USoundBase> RoarSoundAsset(TEXT("SoundWave'/Game/SFX/Roar.Roar'"));
+	RoarSound->SetSound(RoarSoundAsset.Object);
+	ExplosionSound = CreateDefaultSubobject<UAudioComponent>(TEXT("ExplosionSound"));
+	ConstructorHelpers::FObjectFinder<USoundBase> ExplosionSoundAsset(TEXT("SoundWave'/Game/SFX/Explosion.Explosion'"));
+	ExplosionSound->SetSound(ExplosionSoundAsset.Object);
 
 	
 	ConstructorHelpers::FObjectFinder<UPaperSprite> SpreadProjectileAsset(TEXT("PaperSprite'/Game/Sprites/NormalShot.NormalShot'"));
@@ -153,7 +168,11 @@ void AMonster::BeginPlay()
 	Super::BeginPlay();
 
 	DamagedSound->Stop();
-
+	DangerSound->Stop();
+	IdleSound->Stop();
+	RetaliationSound->Stop();
+	RoarSound->Stop();
+	ExplosionSound->Stop();
 	
 	for (int i = 0; i < SpreadProjectilesArray.Num(); i++)
 	{
@@ -333,8 +352,6 @@ void AMonster::SetRadialShotAnim()
 void AMonster::ShootRadialProjectiles()
 {
 	int counter = 0;
-	FVector NewShipLocation = FVector(-1.0f, 0.0f, 0.0f)*ProjectileSpeed;
-
 	for (int i = 0; i < RadialProjectilesArray.Num() && counter < NumberOfRadialShots; i++)
 	{
 		if (RadialProjectilesArray[i]->IsVisible())
@@ -344,14 +361,17 @@ void AMonster::ShootRadialProjectiles()
 		else
 		{
 			FVector ProjectileLocation = GetActorLocation();
+			FVector NewShipLocation = GetShipLocation();
+
 			if (counter % 2 == 0)
 			{
-				NewShipLocation = FVector(-1.0f, (counter * .15f), 0.0f)*ProjectileSpeed;
+				NewShipLocation  = NewShipLocation + (counter*30);
 			}
-			else
+			else 
 			{
-				NewShipLocation = FVector(-1.0f, -(counter * .15f), 0.0f)*ProjectileSpeed;
+				NewShipLocation = (NewShipLocation + (counter*30))*-1;
 			}
+			
 
 			if (Difficulty == EDifficulty::Easy)
 			{
@@ -521,7 +541,7 @@ void AMonster::UpdateProjectiles(float DeltaTime)
 
 void AMonster::SetRandomShot()
 {
-	float RandomShot = 2;//FMath::RandRange(0, 2);
+	float RandomShot = FMath::RandRange(0, 2);
 	if (RandomShot == 1)
 	{
 		SetFastShotAnim();
