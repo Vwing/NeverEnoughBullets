@@ -13,7 +13,7 @@ AShip::AShip()
 	PrimaryActorTick.bCanEverTick = true;
 
 	ShipSprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("ShipSprite"));
-	ConstructorHelpers::FObjectFinder<UPaperSprite> ShipSpriteAsset(TEXT("PaperSprite'/Game/Sprites/ShipSprites/ShipHitbox.ShipHitbox'"));
+	ConstructorHelpers::FObjectFinder<UPaperSprite> ShipSpriteAsset(TEXT("PaperSprite'/Game/Sprites/InnerBounds.InnerBounds'"));
 	ShipSprite->SetSprite(ShipSpriteAsset.Object);
 	RootComponent = ShipSprite;
 
@@ -23,6 +23,9 @@ AShip::AShip()
 
 	ShipFlipbook = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("ShipFlipbook"));
 	ShipFlipbook->SetFlipbook(IdleAnim);
+	ShipFlipbook->AttachTo(RootComponent);
+	ShipFlipbook->SetAbsolute(false,false,true);
+	ShipFlipbook->RelativeLocation = FVector(0.0f, 0.0f, 0.0f);
 
 	ShipSprite->bGenerateOverlapEvents = true;
 	ShipSprite->SetNotifyRigidBodyCollision(true);
