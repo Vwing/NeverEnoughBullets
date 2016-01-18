@@ -15,7 +15,7 @@ AMonster::AMonster()
 	MonsterSprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("MonsterSprite"));
 	ConstructorHelpers::FObjectFinder<UPaperSprite> MonsterSpriteAsset(TEXT("PaperSprite'/Game/Sprites/BossSprites/Boss_Idle1.Boss_Idle1'"));
 	MonsterSprite->SetSprite(MonsterSpriteAsset.Object);
-	MonsterSprite->SetVisibility(true);
+	MonsterSprite->SetVisibility(false);
 
 	MonsterSprite->bGenerateOverlapEvents = true;
 	MonsterSprite->SetNotifyRigidBodyCollision(true);

@@ -6,18 +6,23 @@
 #include "Bounds.h"
 #include "Monster.h"
 #include "Projectile.h"
-
+#include "PaperFlipbookComponent.h"
 // Sets default values
 AShip::AShip()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-
-
 	ShipSprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("ShipSprite"));
-	ConstructorHelpers::FObjectFinder<UPaperSprite> ShipSpriteAsset(TEXT("PaperSprite'/Game/Sprites/ShipSprite.ShipSprite'"));
+	ConstructorHelpers::FObjectFinder<UPaperSprite> ShipSpriteAsset(TEXT("PaperSprite'/Game/Sprites/ShipSprites/ShipHitbox.ShipHitbox'"));
 	ShipSprite->SetSprite(ShipSpriteAsset.Object);
 	RootComponent = ShipSprite;
+
+	IdleAnim = CreateDefaultSubobject<UPaperFlipbook>(TEXT("IdleAnim"));
+	ConstructorHelpers::FObjectFinder<UPaperFlipbook> IdleAnimationAsset(TEXT("PaperFlipbook'/Game/Sprites/ShipSprites/ShipRocketForward.ShipRocketForward'"));
+	IdleAnim = IdleAnimationAsset.Object;
+
+	ShipFlipbook = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("ShipFlipbook"));
+	ShipFlipbook->SetFlipbook(IdleAnim);
 
 	ShipSprite->bGenerateOverlapEvents = true;
 	ShipSprite->SetNotifyRigidBodyCollision(true);

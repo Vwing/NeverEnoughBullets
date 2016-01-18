@@ -78,6 +78,10 @@ public:
 	class UPaperSpriteComponent* ShipSprite;
 	UPROPERTY(EditAnywhere, Category = "Stats")
 	class UPaperSpriteComponent* AbsorbSprite;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+	class UPaperFlipbookComponent* ShipFlipbook;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+	class UPaperFlipbook* IdleAnim;
 
 	UPROPERTY(EditAnywhere, Category = "Audio")
 	class UAudioComponent* AbsorbSound;
