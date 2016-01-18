@@ -50,7 +50,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectiles")
 		int32 Ammo;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
-		TArray<class UPaperSpriteComponent*>  ProjectilesArray;
+		TArray<class UPaperFlipbookComponent*>  ProjectilesArray;
+
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		FRotator ProjectileRotation;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")

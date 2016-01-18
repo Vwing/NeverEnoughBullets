@@ -332,6 +332,8 @@ void AMonster::SetRadialShotAnim()
 void AMonster::ShootRadialProjectiles()
 {
 	int counter = 0;
+	FVector NewShipLocation = FVector(-1.0f, 0.0f, 0.0f)*ProjectileSpeed;
+
 	for (int i = 0; i < RadialProjectilesArray.Num() && counter < NumberOfRadialShots; i++)
 	{
 		if (RadialProjectilesArray[i]->IsVisible())
@@ -341,17 +343,14 @@ void AMonster::ShootRadialProjectiles()
 		else
 		{
 			FVector ProjectileLocation = GetActorLocation();
-			FVector NewShipLocation = GetShipLocation();
-
 			if (counter % 2 == 0)
 			{
-				NewShipLocation  = NewShipLocation + (counter*30);
+				NewShipLocation = FVector(-1.0f, (counter * .15f), 0.0f)*ProjectileSpeed;
 			}
-			else 
+			else
 			{
-				NewShipLocation = (NewShipLocation + (counter*30))*-1;
+				NewShipLocation = FVector(-1.0f, -(counter * .15f), 0.0f)*ProjectileSpeed;
 			}
-			
 
 			if (Difficulty == EDifficulty::Easy)
 			{
@@ -521,7 +520,7 @@ void AMonster::UpdateProjectiles(float DeltaTime)
 
 void AMonster::SetRandomShot()
 {
-	float RandomShot = FMath::RandRange(0, 2);
+	float RandomShot = 2;//FMath::RandRange(0, 2);
 	if (RandomShot == 1)
 	{
 		SetFastShotAnim();
