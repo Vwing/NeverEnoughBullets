@@ -59,18 +59,22 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Anim")
 	class UPaperFlipbook* SlowShotAnim;
 
-	/*
-	UPROPERTY(EditAnywhere,Category="Stats")
-	class UPaperSpriteComponent* Quadrant1;
-	UPROPERTY(EditAnywhere, Category = "Stats")
-	class UPaperSpriteComponent* Quadrant2;
-	UPROPERTY(EditAnywhere, Category = "Stats")
-	class UPaperSpriteComponent* Quadrant3;
-	*/
 	class UPaperSpriteComponent* MonsterSprite;
 
 	UPROPERTY(EditAnywhere, Category = "Sound")
 	class UAudioComponent* DamagedSound;
+	UPROPERTY(EditAnywhere, Category = "Sound")
+	class UAudioComponent* DangerSound;
+	UPROPERTY(EditAnywhere, Category = "Sound")
+	class UAudioComponent* IdleSound;
+	UPROPERTY(EditAnywhere, Category = "Sound")
+	class UAudioComponent* RetaliationSound;
+	UPROPERTY(EditAnywhere, Category = "Sound")
+	class UAudioComponent* RoarSound;
+	UPROPERTY(EditAnywhere, Category = "Sound")
+	class UAudioComponent* ExplosionSound;
+
+
 
 	UPROPERTY(EditAnywhere, Category = "Debug")
 		FString DebugString;
