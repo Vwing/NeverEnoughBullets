@@ -108,6 +108,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 	bool bIsDead;
 	bool bCanAbsorb;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+		bool bIsExploding;
 
 	FTimerHandle ShipHandle;
 	FTimerHandle UpdateMonsterHandle;

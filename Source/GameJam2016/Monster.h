@@ -18,25 +18,35 @@ public:
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-		float Health;
+		int32 Health;
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		FVector ShipLocation;
 	UPROPERTY(VisibleAnywhere, Category = "Stats")
 		TArray<UPrimitiveComponent*> OverlappingComponents;
 
-	//	UPROPERTY(EditAnywhere, Category = "Projectiles")
-	//	TArray<class UPaperSpriteComponent*>  SinProjectilesArray;
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
+		TArray<class UPaperSpriteComponent*>  SpreadProjectilesArray;
 	UPROPERTY(VisibleAnywhere, Category = "Projectiles")
 		TArray<class UPaperSpriteComponent*>  StraightProjectilesArray;
+	UPROPERTY(VisibleAnywhere, Category = "Projectiles")
+		TArray<class UPaperSpriteComponent*>  RadialProjectilesArray;
+
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		FRotator ProjectileRotation;
+
 	UPROPERTY(VisibleAnywhere, Category = "Projectiles")
 		int8 ShotsInUse;
+
+
 	UPROPERTY(VisibleAnywhere, Category = "Projectiles")
 		int8 MaxShotsUsed;
+
 	UPROPERTY(VisibleAnywhere, Category = "Projectiles")
 		TArray<FVector> StraightProjectilesLocations;
-	
+	UPROPERTY(VisibleAnywhere, Category = "Projectiles")
+		TArray<FVector> SpreadProjectilesLocations;
+	UPROPERTY(VisibleAnywhere, Category = "Projectiles")
+		TArray<FVector> RadialProjectilesLocations;
 
 	UPROPERTY(EditAnywhere, Category = "Anim")
 	class UPaperFlipbookComponent* MonsterFlipbook;
@@ -46,7 +56,17 @@ public:
 	class UPaperFlipbook* DamagedAnim;
 	UPROPERTY(EditAnywhere, Category = "Anim")
 	class UPaperFlipbook* FastShotAnim;
+	UPROPERTY(EditAnywhere, Category = "Anim")
+	class UPaperFlipbook* SlowShotAnim;
 
+	/*
+	UPROPERTY(EditAnywhere,Category="Stats")
+	class UPaperSpriteComponent* Quadrant1;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+	class UPaperSpriteComponent* Quadrant2;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+	class UPaperSpriteComponent* Quadrant3;
+	*/
 	class UPaperSpriteComponent* MonsterSprite;
 
 	UPROPERTY(EditAnywhere, Category = "Sound")
@@ -86,11 +106,16 @@ public:
 	};
 	EDifficulty::Type Difficulty;
 
+	float ProjectileSpeed;
 	UPROPERTY(EditAnywhere, Category="Projectiles")
 	float MinShootTime;
 	UPROPERTY(EditAnywhere, Category="Projectiles")
 	float MaxShootTime;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category = "Projectiles")
+		int32 NumberOfSpreadShots;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectiles")
+		int32 NumberOfRadialShots;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		float EasyMinShotMultiplier;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
@@ -121,7 +146,7 @@ public:
 
 	void SetCanShoot();
 
-	void ShootFastProjectile();
+	
 	void UpdateProjectiles(float DeltaTime);
 	bool UpdateOverlappingProjectiles(TArray<UPrimitiveComponent*>& OverlappingComponents);
 
@@ -139,9 +164,17 @@ public:
 	void ShootRetaliationProjectile();
 
 	void SetFastShotAnim();
+	void ShootFastProjectile();
 	void UpdateDifficulty();
 
+	void SetSpreadShotAnim();
+	void ShootSpreadProjectiles();
+
+	void SetRadialShotAnim();
+	void ShootRadialProjectiles();
+
 	float GetShootAgainTime();
+	FVector GetShipLocation();
 
 	FTimerHandle MonsterAnimHandle;
 	FTimerHandle ShootAgainHandle;

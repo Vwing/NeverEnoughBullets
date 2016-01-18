@@ -38,6 +38,9 @@ AMonster::AMonster()
 	ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> FastShotAnimationAsset(TEXT("PaperFlipbook'/Game/Sprites/BossSprites/BossQuickShot.BossQuickShot'"));
 	FastShotAnim = FastShotAnimationAsset.Get();
 
+	ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> SlowShotAnimationAsset(TEXT("PaperFlipbook'/Game/Sprites/BossSprites/BossSlowSHot.BossSlowShot'"));
+	SlowShotAnim = SlowShotAnimationAsset.Get();
+
 	RootComponent = MonsterSprite;
 	MonsterFlipbook = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("MonsterFlipbook"));
 	MonsterFlipbook->SetFlipbook(IdleAnim);
@@ -47,26 +50,28 @@ AMonster::AMonster()
 	ConstructorHelpers::FObjectFinder<USoundBase> DamagedSoundAsset(TEXT("SoundWave'/Game/SFX/Death.Death'"));
 	DamagedSound->SetSound(DamagedSoundAsset.Object);
 
-	/*
-	ConstructorHelpers::FObjectFinder<UPaperSprite> SlowProjectileAsset(TEXT("PaperSprite'/Game/Sprites/NormalShot.NormalShot'"));
-	SinProjectilesArray.Reserve(10);
+	
+	ConstructorHelpers::FObjectFinder<UPaperSprite> SpreadProjectileAsset(TEXT("PaperSprite'/Game/Sprites/NormalShot.NormalShot'"));
+	SpreadProjectilesLocations.Reserve(10);
+	SpreadProjectilesArray.Reserve(10);
 	for (int i = 0; i < 10; i++)
 	{
-	UPaperSpriteComponent* SlowProjectile = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("SinProjectile" + i));
-	SlowProjectile->SetSprite(SlowProjectileAsset.Object);
+		FVector newLocation = FVector(0.0f, 0.0f, 0.0f);
+		SpreadProjectilesLocations.Push(newLocation);
 
-	SlowProjectile->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
-	SlowProjectile->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	SlowProjectile->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
-	SlowProjectile->SetVisibility(false);
-	SlowProjectile->SetEnableGravity(false);
-	SlowProjectile->SetSimulatePhysics(false);
-	SlowProjectile->SetAbsolute(true, true, true);
+		UPaperSpriteComponent* SpreadProjectile = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("SpreadProjectilez" + i));
+		SpreadProjectile->SetSprite(SpreadProjectileAsset.Object);
 
-	SinProjectilesArray.Push(SlowProjectile);
-	} // actually closes here but cant comment whole section out
-	*/
-	
+		SpreadProjectile->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+		SpreadProjectile->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		SpreadProjectile->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+		SpreadProjectile->SetVisibility(false);
+		SpreadProjectile->SetEnableGravity(false);
+		SpreadProjectile->SetSimulatePhysics(false);
+		SpreadProjectile->SetAbsolute(true, true, true);
+
+		SpreadProjectilesArray.Push(SpreadProjectile);
+	}
 
 
 	ConstructorHelpers::FObjectFinder<UPaperSprite> StraightProjectileAsset(TEXT("PaperSprite'/Game/Sprites/NormalShot.NormalShot'"));
@@ -91,12 +96,38 @@ AMonster::AMonster()
 		StraightProjectilesArray.Push(StraightProjectile);
 	}
 
+	
+	ConstructorHelpers::FObjectFinder<UPaperSprite> RadialProjectileAsset(TEXT("PaperSprite'/Game/Sprites/NormalShot.NormalShot'"));
+	RadialProjectilesLocations.Reserve(10);
+	RadialProjectilesArray.Reserve(10);
+	for (int i = 0; i < 10; i++)
+	{
+		FVector newLocation = FVector(0.0f, 0.0f, 0.0f);
+		RadialProjectilesLocations.Push(newLocation);
+
+		UPaperSpriteComponent* RadialProjectile = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("RadialProjectilew" + i));
+		RadialProjectile->SetSprite(RadialProjectileAsset.Object);
+
+		RadialProjectile->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+		RadialProjectile->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		RadialProjectile->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+		RadialProjectile->SetVisibility(false);
+		RadialProjectile->SetEnableGravity(false);
+		RadialProjectile->SetSimulatePhysics(false);
+		RadialProjectile->SetAbsolute(true, true, true);
+
+		RadialProjectilesArray.Push(RadialProjectile);
+	}
+	
 	Health = 50;
 	ShotsInUse = 0;
+	MaxShotsUsed = 30;
+
 	ProjectileRotation = FRotator(90.0f, 90.0f, 0.0f);
 	MonsterState = EMonsterStates::Idle;
 	ShipLocation = FVector(0.0f, 0.0f, 0.0f);
 	Difficulty = EDifficulty::Easy;
+	ProjectileSpeed = 300.0f;
 
 	EasyMinShotMultiplier = 1.5f;
 	EasyMaxShotMultiplier = 2.0f;
@@ -111,6 +142,9 @@ AMonster::AMonster()
 	NormalMaxShootAgainTime = .7f;
 	HardMinShootAgainTime = .2f;
 	HardMaxShootAgainTime = .5f;
+
+	NumberOfSpreadShots = 10;
+	NumberOfRadialShots = 10;
 }
 
 // Called when the game starts or when spawned
@@ -119,19 +153,26 @@ void AMonster::BeginPlay()
 	Super::BeginPlay();
 	DamagedSound->Stop();
 
-	/*
-	for (int i = 0; i < SinProjectilesArray.Num(); i++)
+	
+	for (int i = 0; i < SpreadProjectilesArray.Num(); i++)
 	{
-	SinProjectilesArray[i]->RelativeRotation = ProjectileRotation;
-	SinProjectilesArray[i]->SetWorldLocation(FVector(0.0f, 0.0f, -100.0f));
+		SpreadProjectilesArray[i]->RelativeRotation = ProjectileRotation;
+		SpreadProjectilesArray[i]->SetWorldLocation(FVector(200.0f, 300.0f, -100.0f));
 	}
-	*/
 
 	for (int i = 0; i < StraightProjectilesArray.Num(); i++)
 	{
 		StraightProjectilesArray[i]->RelativeRotation = ProjectileRotation;
 		StraightProjectilesArray[i]->SetWorldLocation(FVector(200.0f, 200.0f, -100.0f));
 	}
+
+	
+	for (int i = 0; i < RadialProjectilesArray.Num(); i++)
+	{
+		RadialProjectilesArray[i]->RelativeRotation = ProjectileRotation;
+		RadialProjectilesArray[i]->SetWorldLocation(FVector(200.0f, 400.0f, -100.0f));
+	}
+	
 
 	MinShootTime = .5f;
 	MaxShootTime = 2;
@@ -225,6 +266,7 @@ void AMonster::SetShootingRetaliationAnim()
 	GetWorldTimerManager().SetTimer(MonsterAnimHandle, this, &AMonster::SetIdleState, 1.0f, false);
 }
 
+
 void AMonster::ShootRetaliationProjectile()
 {
 	for (int i = 0; i < StraightProjectilesArray.Num(); i++)
@@ -236,17 +278,19 @@ void AMonster::ShootRetaliationProjectile()
 		else
 		{
 			FVector ProjectileLocation = GetActorLocation();
+			FVector NewShipLocation = GetShipLocation();
+
 			if (Difficulty == EDifficulty::Easy)
 			{
-				StraightProjectilesLocations[i] = ShipLocation * EasyMaxShotMultiplier;
+				StraightProjectilesLocations[i] = NewShipLocation * EasyMaxShotMultiplier;
 			}
 			else if (Difficulty == EDifficulty::Normal)
 			{
-				StraightProjectilesLocations[i] = ShipLocation* NormalMaxShotMultiplier;
+				StraightProjectilesLocations[i] = NewShipLocation* NormalMaxShotMultiplier;
 			}
 			else if (Difficulty == EDifficulty::Hard)
 			{
-				StraightProjectilesLocations[i] = ShipLocation* HardMaxShotMultiplier;
+				StraightProjectilesLocations[i] = NewShipLocation* HardMaxShotMultiplier;
 			}
 
 			StraightProjectilesArray[i]->SetWorldLocation(ProjectileLocation);
@@ -270,6 +314,69 @@ void AMonster::SetFastShotAnim()
 	GetWorldTimerManager().SetTimer(MonsterAnimHandle, this, &AMonster::SetIdleState, .70f, false);
 }
 
+void AMonster::SetSpreadShotAnim()
+{
+	MonsterFlipbook->SetFlipbook(SlowShotAnim);
+	ShootSpreadProjectiles();
+
+	GetWorldTimerManager().SetTimer(MonsterAnimHandle, this, &AMonster::SetIdleState, 1.2f, false);
+}
+
+void AMonster::SetRadialShotAnim()
+{
+	ShootRadialProjectiles();
+
+	GetWorldTimerManager().SetTimer(MonsterAnimHandle, this, &AMonster::SetIdleState, .32f, false);
+}
+
+void AMonster::ShootRadialProjectiles()
+{
+	int counter = 0;
+	for (int i = 0; i < RadialProjectilesArray.Num() && counter < NumberOfRadialShots; i++)
+	{
+		if (RadialProjectilesArray[i]->IsVisible())
+		{
+			continue;
+		}
+		else
+		{
+			FVector ProjectileLocation = GetActorLocation();
+			FVector NewShipLocation = GetShipLocation();
+
+			if (counter % 2 == 0)
+			{
+				NewShipLocation  = NewShipLocation + (counter*30);
+			}
+			else 
+			{
+				NewShipLocation = (NewShipLocation + (counter*30))*-1;
+			}
+			
+
+			if (Difficulty == EDifficulty::Easy)
+			{
+				float ShotSpeedMultiplier = FMath::FRandRange(EasyMinShotMultiplier, EasyMaxShotMultiplier);
+				RadialProjectilesLocations[i] = NewShipLocation * ShotSpeedMultiplier;
+			}
+			else if (Difficulty == EDifficulty::Normal)
+			{
+				float ShotSpeedMultiplier = FMath::FRandRange(NormalMinShotMultiplier, NormalMinShotMultiplier);
+				RadialProjectilesLocations[i] = NewShipLocation* ShotSpeedMultiplier;
+			}
+			else if (Difficulty == EDifficulty::Hard)
+			{
+				float ShotSpeedMultiplier = FMath::FRandRange(HardMinShotMultiplier, HardMaxShotMultiplier);
+				RadialProjectilesLocations[i] = NewShipLocation* ShotSpeedMultiplier;
+			}
+
+			RadialProjectilesArray[i]->SetWorldLocation(ProjectileLocation);
+			RadialProjectilesArray[i]->SetVisibility(true);
+			ShotsInUse++;
+			counter++;
+		}
+	}
+}
+
 void AMonster::ShootFastProjectile()
 {
 	for (int i = 0; i < StraightProjectilesArray.Num(); i++)
@@ -281,26 +388,66 @@ void AMonster::ShootFastProjectile()
 		else
 		{
 			FVector ProjectileLocation = GetActorLocation();
+			FVector NewShipLocation = GetShipLocation();
+
 			if (Difficulty == EDifficulty::Easy)
 			{
 				float ShotSpeedMultiplier = FMath::FRandRange(EasyMinShotMultiplier, EasyMaxShotMultiplier);
-				StraightProjectilesLocations[i] = ShipLocation * ShotSpeedMultiplier;
+				StraightProjectilesLocations[i] = NewShipLocation * ShotSpeedMultiplier;
 			}
 			else if (Difficulty == EDifficulty::Normal)
 			{
 				float ShotSpeedMultiplier = FMath::FRandRange(NormalMinShotMultiplier, NormalMinShotMultiplier);
-				StraightProjectilesLocations[i] = ShipLocation* ShotSpeedMultiplier;
+				StraightProjectilesLocations[i] = NewShipLocation* ShotSpeedMultiplier;
 			}
 			else if (Difficulty == EDifficulty::Hard)
 			{
 				float ShotSpeedMultiplier = FMath::FRandRange(HardMinShotMultiplier, HardMaxShotMultiplier);
-				StraightProjectilesLocations[i] = ShipLocation* ShotSpeedMultiplier;
+				StraightProjectilesLocations[i] = NewShipLocation* ShotSpeedMultiplier;
 			}
 
 			StraightProjectilesArray[i]->SetWorldLocation(ProjectileLocation);
 			StraightProjectilesArray[i]->SetVisibility(true);
 			ShotsInUse++;
 			return;
+		}
+	}
+}
+
+void AMonster::ShootSpreadProjectiles()
+{
+	int counter = 0;
+	for (int i = 0; i < SpreadProjectilesArray.Num() && counter < NumberOfSpreadShots; i++)
+	{
+		if (SpreadProjectilesArray[i]->IsVisible())
+		{
+			continue;
+		}
+		else
+		{
+			FVector ProjectileLocation = GetActorLocation();
+			FVector NewShipLocation = GetShipLocation() + counter*20;
+
+			if (Difficulty == EDifficulty::Easy)
+			{
+				float ShotSpeedMultiplier = FMath::FRandRange(EasyMinShotMultiplier, EasyMaxShotMultiplier);
+				SpreadProjectilesLocations[i] = NewShipLocation * ShotSpeedMultiplier;
+			}
+			else if (Difficulty == EDifficulty::Normal)
+			{
+				float ShotSpeedMultiplier = FMath::FRandRange(NormalMinShotMultiplier, NormalMinShotMultiplier);
+				SpreadProjectilesLocations[i] = NewShipLocation* ShotSpeedMultiplier;
+			}
+			else if (Difficulty == EDifficulty::Hard)
+			{
+				float ShotSpeedMultiplier = FMath::FRandRange(HardMinShotMultiplier, HardMaxShotMultiplier);
+				SpreadProjectilesLocations[i] = NewShipLocation* ShotSpeedMultiplier;
+			}
+
+			SpreadProjectilesArray[i]->SetWorldLocation(ProjectileLocation);
+			SpreadProjectilesArray[i]->SetVisibility(true);
+			ShotsInUse++;
+			counter++;
 		}
 	}
 }
@@ -328,11 +475,65 @@ void AMonster::UpdateProjectiles(float DeltaTime)
 			StraightProjectilesArray[i]->SetWorldLocation(NewProjectileLocation);
 		}
 	}
+
+	for (int i = 0; i < SpreadProjectilesArray.Num(); i++)
+	{
+		if (SpreadProjectilesArray[i]->IsVisible())
+		{
+			SpreadProjectilesArray[i]->GetOverlappingComponents(OverlappingComponents);
+			if (UpdateOverlappingProjectiles(OverlappingComponents)) //check if its overlapping to destroy it
+			{
+				SpreadProjectilesArray[i]->SetVisibility(false);
+				SpreadProjectilesArray[i]->SetWorldLocation(FVector(100.0f, 100.0f, -100.0f));
+				continue;
+			}
+
+			FVector NewProjectileLocation = FVector(SpreadProjectilesArray[i]->GetComponentLocation().X + SpreadProjectilesLocations[i].X*DeltaTime,
+				SpreadProjectilesArray[i]->GetComponentLocation().Y + SpreadProjectilesLocations[i].Y * DeltaTime, 0.0f);
+			DebugLocation = SpreadProjectilesArray[i]->GetComponentLocation();
+			DebugLocation2 = SpreadProjectilesLocations[i];
+
+			SpreadProjectilesArray[i]->SetWorldLocation(NewProjectileLocation);
+		}
+	}
+
+	for (int i = 0; i < RadialProjectilesArray.Num(); i++)
+	{
+		if (RadialProjectilesArray[i]->IsVisible())
+		{
+			RadialProjectilesArray[i]->GetOverlappingComponents(OverlappingComponents);
+			if (UpdateOverlappingProjectiles(OverlappingComponents)) //check if its overlapping to destroy it
+			{
+				RadialProjectilesArray[i]->SetVisibility(false);
+				RadialProjectilesArray[i]->SetWorldLocation(FVector(100.0f, 100.0f, -100.0f));
+				continue;
+			}
+
+			FVector NewProjectileLocation = FVector(RadialProjectilesArray[i]->GetComponentLocation().X + RadialProjectilesLocations[i].X*DeltaTime,
+				RadialProjectilesArray[i]->GetComponentLocation().Y + RadialProjectilesLocations[i].Y * DeltaTime, 0.0f);
+			DebugLocation = RadialProjectilesArray[i]->GetComponentLocation();
+			DebugLocation2 = RadialProjectilesLocations[i];
+
+			RadialProjectilesArray[i]->SetWorldLocation(NewProjectileLocation);
+		}
+	}
 }
 
 void AMonster::SetRandomShot()
 {
-	SetFastShotAnim();
+	float RandomShot = FMath::RandRange(0, 2);
+	if (RandomShot == 1)
+	{
+		SetFastShotAnim();
+	}
+	else if (RandomShot == 0)
+	{
+		SetSpreadShotAnim();
+	}
+	else if (RandomShot == 2)
+	{
+		SetRadialShotAnim();
+	}
 }
 
 bool AMonster::UpdateOverlappingProjectiles(TArray<UPrimitiveComponent*>& OverlappingComponents)
@@ -372,6 +573,12 @@ bool AMonster::UpdateOverlappingProjectiles(TArray<UPrimitiveComponent*>& Overla
 		else if (OverlappingComponents[i]->GetName().Contains("BottomBoundsSprite"))
 		{
 			DebugString = "BottomBoundsSprite";
+			ShotsInUse -= 1;
+			return true;
+		}
+		else if (OverlappingComponents[i]->GetName().Contains("RightBoundsSprite"))
+		{
+			DebugString = "RightBoundsSprite";
 			ShotsInUse -= 1;
 			return true;
 		}
@@ -415,4 +622,10 @@ float AMonster::GetShootAgainTime()
 		return FMath::FRandRange(HardMinShootAgainTime, HardMaxShootAgainTime);
 	}
 	return 2;
+}
+FVector AMonster::GetShipLocation()
+{
+	FVector TargetDirection = ShipLocation - GetActorLocation();
+	TargetDirection.Normalize(0.01f);
+	return TargetDirection*ProjectileSpeed;	
 }

@@ -111,6 +111,7 @@ AShip::AShip()
 	bCanAbsorb = true;
 	bCanMoveRight = true;
 	bIsDead = false;
+	bIsExploding = false;
 
 	ProjectileSpeed = 1200.0f;
 	ProjectileRotation = FRotator(90.0f, 90.0f, 0.0f);
