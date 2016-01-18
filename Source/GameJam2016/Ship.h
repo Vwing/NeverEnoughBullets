@@ -88,6 +88,19 @@ public:
 	class UAudioComponent* AbsorbSound;
 	UPROPERTY(EditAnywhere, Category = "Audio")
 	class UAudioComponent* ShootingSound;
+	UPROPERTY(EditAnywhere, Category = "Audio")
+	class UAudioComponent* SliceSound;
+	UPROPERTY(EditAnywhere, Category = "Audio")
+	class UAudioComponent* BlasterSound;
+
+	UPROPERTY(EditAnywhere, Category = "Stats")
+	class UPaperSpriteComponent* TopArrowSprite;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+	class UPaperSpriteComponent* BottomArrowSprite;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+	FVector ArrowSpriteScale;
+
+
 	UPROPERTY(EditAnywhere, Category = "Stats")
 	class UPaperSpriteComponent* TopInnerBounds;
 	UPROPERTY(EditAnywhere, Category = "Stats")
@@ -114,7 +127,28 @@ public:
 
 	FTimerHandle ShipHandle;
 	FTimerHandle UpdateMonsterHandle;
+	FTimerHandle AbsorbHandle;
+
+	void AllowAbsorb();
 
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		FVector ProjectileAnimOffset;
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
+		FVector ProjectileAnimScale;
+
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		float AbsorbTimer;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		FVector AbsorbSpriteScale;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		FRotator InnerBoundsRotation;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		FVector ShipSpriteScale;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		FVector ShipFlipbookScale;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		FVector InnerBoundsScale;
+	
+	void UpdateAbsorb();
+	bool bCanSlice;
 };

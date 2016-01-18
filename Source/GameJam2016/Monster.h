@@ -72,6 +72,8 @@ public:
 	class UAudioComponent* RoarSound;
 	UPROPERTY(EditAnywhere, Category = "Sound")
 	class UAudioComponent* ExplosionSound;
+	UPROPERTY(EditAnywhere, Category = "Sound")
+	class UAudioComponent* CaughtShotSound;
 
 
 
@@ -148,7 +150,7 @@ public:
 	bool bCanShoot;
 
 	void SetCanShoot();
-
+	void SetInitialProjectileSettings(UPaperSpriteComponent*& PrimComp);
 	
 	void UpdateProjectiles(float DeltaTime);
 	bool UpdateOverlappingProjectiles(TArray<UPrimitiveComponent*>& OverlappingComponents);
@@ -184,4 +186,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		FVector ProjectileAnimOffset;
+
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
+		FVector ProjectileAnimScale;
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
+		FVector ProjectileSpriteScale;
 };

@@ -12,6 +12,17 @@ AShip::AShip()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	ProjectileRotation = FRotator(90.0f, 90.0f, 0.0f);
+	AbsorbSpriteScale = FVector(1.2f, 1.0f, 1.2);
+	InnerBoundsRotation = FRotator(90.0f, 0.0f, 90.0f);
+	ShipSpriteScale = FVector(1.3f, 1.0f, .50f);
+	ShipFlipbookScale = FVector(3.0f, 3.0f, 3.0f);
+	ProjectileAnimOffset = FVector(-75.0f, 0.0f, 1.0f);
+	ProjectileAnimScale = FVector(8.0f, 8.0f, 8.0f);
+	InnerBoundsScale = FVector(5.0f, 1.0f, 10.0f);
+	ArrowSpriteScale = FVector(.4f, .4f, .4f);
+
+
 	ShipSprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("ShipSprite"));
 	ConstructorHelpers::FObjectFinder<UPaperSprite> ShipSpriteAsset(TEXT("PaperSprite'/Game/Sprites/InnerBounds.InnerBounds'"));
 	ShipSprite->SetSprite(ShipSpriteAsset.Object);
@@ -38,12 +49,20 @@ AShip::AShip()
 	ShipSprite->SetEnableGravity(false);
 	ShipSprite->bMultiBodyOverlap = true;
 	ShipSprite->GetBodyInstance()->bUseCCD = true;
-	ShipSprite->SetWorldScale3D(FVector(1.3f, 1.0f, 0.5f));
+	ShipSprite->SetWorldScale3D(ShipSpriteScale);
 
 	AbsorbSprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("AbsorbSprite"));
 	ConstructorHelpers::FObjectFinder<UPaperSprite> AbsorbSpriteAsset(TEXT("PaperSprite'/Game/Sprites/AbsorbSprite.AbsorbSprite'"));
 	AbsorbSprite->SetSprite(AbsorbSpriteAsset.Object);
 	AbsorbSprite->SetVisibility(true);
+
+	/*
+	UPaperFlipbookComponent* AbsorbFlipbook = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("AbsorbFlipbook"));
+	ConstructorHelpers::FObjectFinder<UPaperFlipbook> AbsorbFlipbookAsset(TEXT("PaperSprite'/Game/Sprites/AbsorbSprite.AbsorbSprite'"));
+	AbsorbFlipbook->SetFlipbook(AbsorbFlipbookAsset.Object);
+	AbsorbFlipbook->SetVisibility(true);
+	*/
+
 
 	AbsorbSprite->bGenerateOverlapEvents = true;
 	AbsorbSprite->SetNotifyRigidBodyCollision(true);
@@ -56,6 +75,7 @@ AShip::AShip()
 	AbsorbSprite->bMultiBodyOverlap = true;
 	AbsorbSprite->GetBodyInstance()->bUseCCD = true;
 	AbsorbSprite->SetAbsolute(true, true, true);
+	AbsorbSprite->SetWorldLocation(FVector(-200.0f, -200.0f, -200.0f));
 
 	ConstructorHelpers::FObjectFinder<UPaperSprite> PlayerProjectileSpriteAsset(TEXT("PaperSprite'/Game/Sprites/NormalShot.NormalShot'"));
 	ConstructorHelpers::FObjectFinder<UPaperFlipbook> PlayerProjectileAnimAsset(TEXT("PaperFlipbook'/Game/Sprites/BulletSprites/PlayerBullet.PlayerBullet'"));
@@ -89,13 +109,24 @@ AShip::AShip()
 	TopInnerBounds->SetSprite(InnerBoundsAsset.Object);
 	TopInnerBounds->AttachTo(RootComponent);
 	TopInnerBounds->SetAbsolute(true, true, true);
-	//TopInnerBounds->SetVisibility(false);
 
 	BottomInnerBounds = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("BottomInnerBounds"));
 	BottomInnerBounds->SetSprite(InnerBoundsAsset.Object);
 	BottomInnerBounds->AttachTo(RootComponent);
 	BottomInnerBounds->SetAbsolute(true, true, true);
-	//BottomInnerBounds->SetVisibility(false);
+
+	ConstructorHelpers::FObjectFinder<UPaperSprite> ArrowSpriteAsset(TEXT("PaperSprite'/Game/Sprites/Arrow_Sprite_0.Arrow_Sprite_0'"));
+	TopArrowSprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("TopArrowSprite"));
+	TopArrowSprite->AttachTo(RootComponent);
+	TopArrowSprite->SetAbsolute(true, true, true);
+	TopArrowSprite->SetWorldScale3D(ArrowSpriteScale);
+	TopArrowSprite->SetWorldLocation(FVector(-200, -200, -400));
+
+	BottomArrowSprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("BottomArrowSprite"));
+	BottomArrowSprite->AttachTo(RootComponent);
+	BottomArrowSprite->SetAbsolute(true, true, true);
+	BottomArrowSprite->SetWorldScale3D(ArrowSpriteScale);
+	BottomArrowSprite->SetWorldLocation(FVector(-200, -200, -400));
 
 	ShootingSound = CreateDefaultSubobject<UAudioComponent>(TEXT("ShootingSound"));
 	ConstructorHelpers::FObjectFinder<USoundBase> ShootingSoundAsset(TEXT("SoundWave'/Game/SFX/Burn.Burn'"));
@@ -105,6 +136,13 @@ AShip::AShip()
 	ConstructorHelpers::FObjectFinder<USoundBase> AbsorbSoundAsset(TEXT("SoundWave'/Game/SFX/Absorb.Absorb'"));
 	AbsorbSound->SetSound(AbsorbSoundAsset.Object);
 
+	SliceSound = CreateDefaultSubobject<UAudioComponent>(TEXT("SliceSound"));
+	ConstructorHelpers::FObjectFinder<USoundBase> SliceSoundAsset(TEXT("SoundWave'/Game/SFX/Slice.Slice'"));
+	SliceSound->SetSound(SliceSoundAsset.Object);
+
+	BlasterSound = CreateDefaultSubobject<UAudioComponent>(TEXT("BlasterSound"));
+	ConstructorHelpers::FObjectFinder<USoundBase> BlasterSoundAsset(TEXT("SoundWave'/Game/SFX/Blaster.Blaster'"));
+	BlasterSound->SetSound(BlasterSoundAsset.Object);
 
 	ShipState = EShipStates::Static;
 	MaxVerticalSpeed = 900.0f;
@@ -121,45 +159,52 @@ AShip::AShip()
 	bCanMoveRight = true;
 	bIsDead = false;
 	bIsExploding = false;
+	bCanSlice = true;
 
 	ProjectileSpeed = 1200.0f;
-	ProjectileRotation = FRotator(90.0f, 90.0f, 0.0f);
-
+	
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 	DebugString = "";
 	MonsterReference = nullptr;
-
-	ProjectileAnimOffset = FVector(-75.0f, 0.0f, 1.0f);
+	AbsorbTimer = .3f;
 }
 
 // Called when the game starts or when spawned
 void AShip::BeginPlay()
 {
-
 	ShootingSound->Stop();
 	AbsorbSound->Stop();
-	
-	
+	SliceSound->Stop();
+	BlasterSound->Stop();
+
 	for (int i = 0; i < ProjectilesArray.Num(); i++)
 	{
 		ProjectilesArray[i]->RelativeRotation = ProjectileRotation;
 		ProjectilesArray[i]->SetWorldLocation(FVector(-200.0f, -300.0f, -100.0f));
 
-		ProjectilesArray[i]->GetChildComponent(0)->SetWorldScale3D(FVector(8.0f, 8.0f, 8.0f));
+		ProjectilesArray[i]->GetChildComponent(0)->SetWorldScale3D(ProjectileAnimScale);
 		ProjectilesArray[i]->GetChildComponent(0)->RelativeRotation = ProjectileRotation;
 		ProjectilesArray[i]->GetChildComponent(0)->SetWorldLocation(FVector(-200.0f, -300.0f, -100.0f));
 	}
 	
 
 	AbsorbSprite->RelativeRotation = ProjectileRotation;
-	AbsorbSprite->SetWorldLocation(FVector(-100.0f, 200.0f, -200.0f));
+	AbsorbSprite->SetWorldScale3D(AbsorbSpriteScale);
+	AbsorbSprite->SetWorldLocation(FVector(-100.0f, -200.0f, -200.0f));
 
-	ShipFlipbook->SetWorldScale3D(FVector(3.0f, 3.0f, 3.0f));
-	ShipSprite->SetWorldScale3D(FVector(1.3f, 1.0f, .50f));
+	ShipFlipbook->SetWorldScale3D(ShipFlipbookScale);
+	ShipSprite->SetWorldScale3D(ShipSpriteScale);
 	UpdateMonster();
 
-	Super::BeginPlay();
+	TopInnerBounds->SetWorldRotation(InnerBoundsRotation);
+	TopInnerBounds->SetWorldScale3D(InnerBoundsScale);
+	BottomInnerBounds->SetWorldRotation(InnerBoundsRotation);
+	BottomInnerBounds->SetWorldScale3D(InnerBoundsScale);
 
+	TopArrowSprite->SetWorldRotation(ProjectileRotation);
+	BottomArrowSprite->SetWorldRotation(ProjectileRotation);
+
+	Super::BeginPlay();
 }
 
 // Called every frame
@@ -175,7 +220,14 @@ void AShip::Tick(float DeltaTime)
 	{
 		UpdateProjectiles(DeltaTime);
 	}
-
+	if (!bCanAbsorb) // if currently active(!bCanAbsorb)
+	{
+		UpdateAbsorb(); 
+	}
+	if (!bIsDead)
+	{
+	//	BlasterSound->Play();
+	}
 	switch (ShipState)
 	{
 	case EShipStates::Static:
@@ -301,7 +353,7 @@ void AShip::MakeMovements(float DeltaTime)
 		CurrentHorizontalSpeed *= DeltaTime;
 	}
 
-	SetActorLocation(GetActorLocation() + FVector(CurrentHorizontalSpeed, CurrentVerticalSpeed, 0.0f));
+	SetActorLocation(GetActorLocation() + (FVector(CurrentHorizontalSpeed, CurrentVerticalSpeed, 0.0f)));
 }
 
 void AShip::UpdateOverlappingComponents(TArray<UPrimitiveComponent*>& OverlappingComponents)
@@ -372,6 +424,10 @@ void AShip::UpdateOverlappingComponents(TArray<UPrimitiveComponent*>& Overlappin
 			bCanMoveRight = false;
 
 			SetActorLocation(TeleportLocation);
+		}
+		else if (OverlappingComponents[i]->GetName().Contains("TopInnerBounds"))
+		{
+			//TopArrowSprite->SetWorldLocation(FVector(GetActorLocation().X, TopInnerBounds->GetComponentLocation().Y, 0.0f));
 		}
 	}
 }
@@ -465,19 +521,26 @@ void AShip::Absorb()
 
 void AShip::StopAbsorb()
 {
-	bCanAbsorb = true;
 	AbsorbSprite->SetVisibility(false);
 	AbsorbSprite->SetWorldLocation(FVector(-200.0f, -200.0f, -200.0f));
 
+	GetWorldTimerManager().SetTimer(ShipHandle, this, &AShip::AllowAbsorb, AbsorbTimer, false); //timer to allow absorb again
 }
 
 void AShip::InitiateAbsorb()
 {
 	AbsorbSprite->SetVisibility(true);
-	AbsorbSprite->SetWorldLocation(FVector(GetActorLocation().X + ShipSprite->Bounds.BoxExtent.X*1.2,
-		GetActorLocation().Y, 0.0f));
+	UpdateAbsorb();
 
-	GetWorldTimerManager().SetTimer(ShipHandle, this, &AShip::StopAbsorb, 0.4f, false);
+	GetWorldTimerManager().SetTimer(ShipHandle, this, &AShip::StopAbsorb, AbsorbTimer, false);
+}
+
+void AShip::AllowAbsorb()
+{
+	bCanAbsorb = true;
+	bCanSlice = true;
+	AbsorbSprite->SetVisibility(false);
+	AbsorbSprite->SetWorldLocation(FVector(-200.0f, -200.0f, -200.0f));
 }
 
 void AShip::UpdateMonster()
@@ -490,5 +553,35 @@ void AShip::UpdateMonster()
 	}
 
 	MonsterReference->ShipLocation = GetActorLocation();
-	GetWorldTimerManager().SetTimer(UpdateMonsterHandle, this, &AShip::UpdateMonster, 1.0f, false);
+	GetWorldTimerManager().SetTimer(UpdateMonsterHandle, this, &AShip::UpdateMonster, .50f, false);
+}
+
+void AShip::UpdateAbsorb()
+{
+	AbsorbSprite->SetWorldLocation(FVector(GetActorLocation().X + ShipSprite->Bounds.BoxExtent.X*2.0f,
+		GetActorLocation().Y, 0.0f));
+
+	if (bCanSlice)
+	{
+		AbsorbSprite->GetOverlappingComponents(OverlappingComponents);
+		if (OverlappingComponents.Num() > 0)
+		{
+			for (int i = 0; i < OverlappingComponents.Num(); i++)
+			{
+				if (OverlappingComponents[i]->GetName().Contains("MonsterSprite"))
+				{
+					if (MonsterReference == nullptr ||
+						MonsterReference == NULL)
+					{
+						return;
+					}
+					MonsterReference->Health -= 3;
+					MonsterReference->SetDamagedState();
+					SliceSound->Play();
+					bCanSlice = false;
+				}
+			}
+		}
+	}
+	
 }
