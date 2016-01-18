@@ -67,6 +67,9 @@ AMonster::AMonster()
 
 	
 	ConstructorHelpers::FObjectFinder<UPaperSprite> SpreadProjectileAsset(TEXT("PaperSprite'/Game/Sprites/NormalShot.NormalShot'"));
+	ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> YellowProjectileAnimAsset(TEXT("PaperFlipbook'/Game/Sprites/BulletSprites/MonsterBulletYellow.MonsterBulletYellow'"));
+	ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> BlueProjectileAnimAsset(TEXT("PaperFlipbook'/Game/Sprites/BulletSprites/MonsterBulletBlue.MonsterBulletBlue'"));
+	
 	SpreadProjectilesLocations.Reserve(10);
 	SpreadProjectilesArray.Reserve(10);
 	for (int i = 0; i < 10; i++)
@@ -77,6 +80,8 @@ AMonster::AMonster()
 		UPaperSpriteComponent* SpreadProjectile = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("SpreadProjectilez" + i));
 		SpreadProjectile->SetSprite(SpreadProjectileAsset.Object);
 
+		SpreadProjectile->AttachTo(RootComponent);
+
 		SpreadProjectile->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
 		SpreadProjectile->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		SpreadProjectile->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
@@ -85,9 +90,24 @@ AMonster::AMonster()
 		SpreadProjectile->SetSimulatePhysics(false);
 		SpreadProjectile->SetAbsolute(true, true, true);
 
+		
+		UPaperFlipbookComponent* SpreadProjectileAnim = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("SpreadProjectileAnim" + i));
+		SpreadProjectileAnim->SetFlipbook(YellowProjectileAnimAsset.Get());
+
+		if (i == 3 || i == 6 || i == 9)
+		{
+			SpreadProjectileAnim->SetFlipbook(BlueProjectileAnimAsset.Get());
+		}
+		SpreadProjectileAnim->AttachTo(SpreadProjectile);
+		SpreadProjectileAnim->SetAbsolute(true, true, true);
+		SpreadProjectileAnim->SetWorldScale3D(FVector(5.0f, 5.0f, 5.0f));
+		SpreadProjectileAnim->SetVisibility(false);
+		
 		SpreadProjectilesArray.Push(SpreadProjectile);
 	}
 
+	ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> YellowProjectileAnimAsset2(TEXT("PaperFlipbook'/Game/Sprites/BulletSprites/MonsterBulletYellow.MonsterBulletYellow'"));
+	ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> BlueProjectileAnimAsset2(TEXT("PaperFlipbook'/Game/Sprites/BulletSprites/MonsterBulletBlue.MonsterBulletBlue'"));
 
 	ConstructorHelpers::FObjectFinder<UPaperSprite> StraightProjectileAsset(TEXT("PaperSprite'/Game/Sprites/NormalShot.NormalShot'"));
 	StraightProjectilesArray.Reserve(10);
@@ -99,6 +119,7 @@ AMonster::AMonster()
 
 		UPaperSpriteComponent* StraightProjectile = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("StraightProjectile" + i));
 		StraightProjectile->SetSprite(StraightProjectileAsset.Object);
+		StraightProjectile->AttachTo(RootComponent);
 
 		StraightProjectile->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
 		StraightProjectile->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -130,7 +151,20 @@ AMonster::AMonster()
 		RadialProjectile->SetEnableGravity(false);
 		RadialProjectile->SetSimulatePhysics(false);
 		RadialProjectile->SetAbsolute(true, true, true);
+		RadialProjectile->AttachTo(RootComponent);
+		
+		UPaperFlipbookComponent* RadialProjectileAnim = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("RadialProjectiAnim" + i));
+		RadialProjectileAnim->SetFlipbook(YellowProjectileAnimAsset.Get());
 
+		if (i == 3 || i == 6 || i == 9)
+		{
+			RadialProjectileAnim->SetFlipbook(BlueProjectileAnimAsset.Get());
+		}
+		RadialProjectileAnim->AttachTo(RadialProjectile);
+		RadialProjectileAnim->SetAbsolute(true, true, true);
+		RadialProjectileAnim->SetWorldScale3D(FVector(5.0f, 5.0f, 5.0f));
+		RadialProjectileAnim->SetVisibility(false);	
+		
 		RadialProjectilesArray.Push(RadialProjectile);
 	}
 	
@@ -160,6 +194,8 @@ AMonster::AMonster()
 
 	NumberOfSpreadShots = 10;
 	NumberOfRadialShots = 10;
+
+	ProjectileAnimOffset = FVector(50.0f, 0.0f, 1.0f);
 }
 
 // Called when the game starts or when spawned
@@ -178,6 +214,8 @@ void AMonster::BeginPlay()
 	{
 		SpreadProjectilesArray[i]->RelativeRotation = ProjectileRotation;
 		SpreadProjectilesArray[i]->SetWorldLocation(FVector(200.0f, 300.0f, -100.0f));
+		SpreadProjectilesArray[i]->GetChildComponent(0)->RelativeRotation = ProjectileRotation;
+		SpreadProjectilesArray[i]->GetChildComponent(0)->SetWorldLocation(FVector(200.0f, 300.0f, -100.0f));
 	}
 
 	for (int i = 0; i < StraightProjectilesArray.Num(); i++)
@@ -186,11 +224,12 @@ void AMonster::BeginPlay()
 		StraightProjectilesArray[i]->SetWorldLocation(FVector(200.0f, 200.0f, -100.0f));
 	}
 
-	
 	for (int i = 0; i < RadialProjectilesArray.Num(); i++)
 	{
 		RadialProjectilesArray[i]->RelativeRotation = ProjectileRotation;
-		RadialProjectilesArray[i]->SetWorldLocation(FVector(200.0f, 400.0f, -100.0f));
+		RadialProjectilesArray[i]->SetWorldLocation(FVector(200.0f, 300.0f, -100.0f));
+		RadialProjectilesArray[i]->GetChildComponent(0)->RelativeRotation = ProjectileRotation;
+		RadialProjectilesArray[i]->GetChildComponent(0)->SetWorldLocation(FVector(200.0f, 300.0f, -100.0f));
 	}
 	
 
@@ -354,23 +393,24 @@ void AMonster::ShootRadialProjectiles()
 	int counter = 0;
 	for (int i = 0; i < RadialProjectilesArray.Num() && counter < NumberOfRadialShots; i++)
 	{
-		if (RadialProjectilesArray[i]->IsVisible())
+		if (RadialProjectilesArray[i]->GetChildComponent(0)->IsVisible())
 		{
 			continue;
 		}
 		else
 		{
 			FVector ProjectileLocation = GetActorLocation();
-			FVector NewShipLocation = GetShipLocation();
+			FVector NewShipLocation = FVector(-1.0f, 0.0f, 0.0f);
 
 			if (counter % 2 == 0)
 			{
-				NewShipLocation  = NewShipLocation + (counter*30);
+				NewShipLocation.Y  = (counter*.15);
 			}
 			else 
 			{
-				NewShipLocation = (NewShipLocation + (counter*30))*-1;
+				NewShipLocation.Y = (counter*.15)*-1;
 			}
+			NewShipLocation *= ProjectileSpeed;
 			
 
 			if (Difficulty == EDifficulty::Easy)
@@ -391,6 +431,8 @@ void AMonster::ShootRadialProjectiles()
 
 			RadialProjectilesArray[i]->SetWorldLocation(ProjectileLocation);
 			RadialProjectilesArray[i]->SetVisibility(true);
+			RadialProjectilesArray[i]->GetChildComponent(0)->SetWorldLocation(ProjectileLocation + ProjectileAnimOffset);
+			RadialProjectilesArray[i]->GetChildComponent(0)->SetVisibility(true);
 			ShotsInUse++;
 			counter++;
 		}
@@ -439,7 +481,7 @@ void AMonster::ShootSpreadProjectiles()
 	int counter = 0;
 	for (int i = 0; i < SpreadProjectilesArray.Num() && counter < NumberOfSpreadShots; i++)
 	{
-		if (SpreadProjectilesArray[i]->IsVisible())
+		if (SpreadProjectilesArray[i]->GetChildComponent(0)->IsVisible())
 		{
 			continue;
 		}
@@ -466,6 +508,9 @@ void AMonster::ShootSpreadProjectiles()
 
 			SpreadProjectilesArray[i]->SetWorldLocation(ProjectileLocation);
 			SpreadProjectilesArray[i]->SetVisibility(true);
+
+			SpreadProjectilesArray[i]->GetChildComponent(0)->SetWorldLocation(ProjectileLocation + ProjectileAnimOffset);
+			SpreadProjectilesArray[i]->GetChildComponent(0)->SetVisibility(true);
 			ShotsInUse++;
 			counter++;
 		}
@@ -498,13 +543,16 @@ void AMonster::UpdateProjectiles(float DeltaTime)
 
 	for (int i = 0; i < SpreadProjectilesArray.Num(); i++)
 	{
-		if (SpreadProjectilesArray[i]->IsVisible())
+		if (SpreadProjectilesArray[i]->GetChildComponent(0)->IsVisible())
 		{
 			SpreadProjectilesArray[i]->GetOverlappingComponents(OverlappingComponents);
 			if (UpdateOverlappingProjectiles(OverlappingComponents)) //check if its overlapping to destroy it
 			{
 				SpreadProjectilesArray[i]->SetVisibility(false);
 				SpreadProjectilesArray[i]->SetWorldLocation(FVector(100.0f, 100.0f, -100.0f));
+
+				SpreadProjectilesArray[i]->GetChildComponent(0)->SetVisibility(false);
+				SpreadProjectilesArray[i]->GetChildComponent(0)->SetWorldLocation(FVector(100.0f, 100.0f, -100.0f));
 				continue;
 			}
 
@@ -514,27 +562,30 @@ void AMonster::UpdateProjectiles(float DeltaTime)
 			DebugLocation2 = SpreadProjectilesLocations[i];
 
 			SpreadProjectilesArray[i]->SetWorldLocation(NewProjectileLocation);
+			SpreadProjectilesArray[i]->GetChildComponent(0)->SetWorldLocation(NewProjectileLocation + ProjectileAnimOffset);
 		}
 	}
 
 	for (int i = 0; i < RadialProjectilesArray.Num(); i++)
 	{
-		if (RadialProjectilesArray[i]->IsVisible())
+		if (RadialProjectilesArray[i]->GetChildComponent(0)->IsVisible())
 		{
 			RadialProjectilesArray[i]->GetOverlappingComponents(OverlappingComponents);
 			if (UpdateOverlappingProjectiles(OverlappingComponents)) //check if its overlapping to destroy it
 			{
 				RadialProjectilesArray[i]->SetVisibility(false);
 				RadialProjectilesArray[i]->SetWorldLocation(FVector(100.0f, 100.0f, -100.0f));
+
+				RadialProjectilesArray[i]->GetChildComponent(0)->SetVisibility(false);
+				RadialProjectilesArray[i]->GetChildComponent(0)->SetWorldLocation(FVector(100.0f, 100.0f, -100.0f));
 				continue;
 			}
 
 			FVector NewProjectileLocation = FVector(RadialProjectilesArray[i]->GetComponentLocation().X + RadialProjectilesLocations[i].X*DeltaTime,
 				RadialProjectilesArray[i]->GetComponentLocation().Y + RadialProjectilesLocations[i].Y * DeltaTime, 0.0f);
-			DebugLocation = RadialProjectilesArray[i]->GetComponentLocation();
-			DebugLocation2 = RadialProjectilesLocations[i];
-
+		
 			RadialProjectilesArray[i]->SetWorldLocation(NewProjectileLocation);
+			RadialProjectilesArray[i]->GetChildComponent(0)->SetWorldLocation(NewProjectileLocation);
 		}
 	}
 }

@@ -26,9 +26,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		TArray<class UPaperSpriteComponent*>  SpreadProjectilesArray;
-	UPROPERTY(VisibleAnywhere, Category = "Projectiles")
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		TArray<class UPaperSpriteComponent*>  StraightProjectilesArray;
-	UPROPERTY(VisibleAnywhere, Category = "Projectiles")
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		TArray<class UPaperSpriteComponent*>  RadialProjectilesArray;
 
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
@@ -36,7 +36,6 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category = "Projectiles")
 		int8 ShotsInUse;
-
 
 	UPROPERTY(VisibleAnywhere, Category = "Projectiles")
 		int8 MaxShotsUsed;
@@ -182,4 +181,7 @@ public:
 
 	FTimerHandle MonsterAnimHandle;
 	FTimerHandle ShootAgainHandle;
+
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
+		FVector ProjectileAnimOffset;
 };
