@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #include "GameJam2016.h"
 #include "Monster.h"
 #include "PaperFlipbookComponent.h"
@@ -76,11 +74,11 @@ AMonster::AMonster()
 	ConstructorHelpers::FObjectFinder<USoundBase> CaughtShotSoundAsset(TEXT("SoundWave'/Game/SFX/Caught_Shot.Caught_Shot'"));
 	CaughtShotSound->SetSound(CaughtShotSoundAsset.Object);
 
-	
+
 	ConstructorHelpers::FObjectFinder<UPaperSprite> SpreadProjectileAsset(TEXT("PaperSprite'/Game/Sprites/NormalShot.NormalShot'"));
 	ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> YellowProjectileAnimAsset(TEXT("PaperFlipbook'/Game/Sprites/BulletSprites/MonsterBulletYellow.MonsterBulletYellow'"));
 	ConstructorHelpers::FObjectFinderOptional<UPaperFlipbook> BlueProjectileAnimAsset(TEXT("PaperFlipbook'/Game/Sprites/BulletSprites/MonsterBulletBlue.MonsterBulletBlue'"));
-	
+
 	SpreadProjectilesLocations.Reserve(10);
 	SpreadProjectilesArray.Reserve(10);
 	for (int i = 0; i < 10; i++)
@@ -100,7 +98,7 @@ AMonster::AMonster()
 		SpreadProjectile->SetEnableGravity(false);
 		SpreadProjectile->SetSimulatePhysics(false);
 		SpreadProjectile->SetAbsolute(true, true, true);
-		
+
 		UPaperFlipbookComponent* SpreadProjectileAnim = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("SpreadProjectileAnim" + i));
 		SpreadProjectileAnim->SetFlipbook(YellowProjectileAnimAsset.Get());
 
@@ -112,7 +110,7 @@ AMonster::AMonster()
 		SpreadProjectileAnim->SetAbsolute(true, true, true);
 		SpreadProjectileAnim->SetWorldScale3D(ProjectileAnimScale);
 		SpreadProjectileAnim->SetVisibility(false);
-		
+
 		SpreadProjectilesArray.Push(SpreadProjectile);
 	}
 
@@ -151,7 +149,7 @@ AMonster::AMonster()
 		StraightProjectilesArray.Push(StraightProjectile);
 	}
 
-	
+
 	ConstructorHelpers::FObjectFinder<UPaperSprite> RadialProjectileAsset(TEXT("PaperSprite'/Game/Sprites/NormalShot.NormalShot'"));
 	RadialProjectilesLocations.Reserve(10);
 	RadialProjectilesArray.Reserve(10);
@@ -171,7 +169,7 @@ AMonster::AMonster()
 		RadialProjectile->SetSimulatePhysics(false);
 		RadialProjectile->SetAbsolute(true, true, true);
 		RadialProjectile->AttachTo(RootComponent);
-		
+
 		UPaperFlipbookComponent* RadialProjectileAnim = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("RadialProjectiAnim" + i));
 		RadialProjectileAnim->SetFlipbook(YellowProjectileAnimAsset.Get());
 
@@ -182,11 +180,11 @@ AMonster::AMonster()
 		RadialProjectileAnim->AttachTo(RadialProjectile);
 		RadialProjectileAnim->SetAbsolute(true, true, true);
 		RadialProjectileAnim->SetWorldScale3D(ProjectileAnimScale);
-		RadialProjectileAnim->SetVisibility(false);	
-		
+		RadialProjectileAnim->SetVisibility(false);
+
 		RadialProjectilesArray.Push(RadialProjectile);
 	}
-	
+
 	Health = 50;
 	ShotsInUse = 0;
 	MaxShotsUsed = 30;
@@ -229,7 +227,7 @@ void AMonster::BeginPlay()
 	RoarSound->Stop();
 	ExplosionSound->Stop();
 	CaughtShotSound->Stop();
-	
+
 	for (int i = 0; i < SpreadProjectilesArray.Num(); i++)
 	{
 		SetInitialProjectileSettings(SpreadProjectilesArray[i]);
@@ -244,7 +242,7 @@ void AMonster::BeginPlay()
 	{
 		SetInitialProjectileSettings(RadialProjectilesArray[i]);
 	}
-	
+
 
 	MinShootTime = .5f;
 	MaxShootTime = 2;
@@ -307,7 +305,7 @@ void AMonster::SetDamagedAnim()
 {
 	MonsterFlipbook->SetFlipbook(DamagedAnim);
 	DamagedSound->Play();
-	
+
 	GetWorldTimerManager().SetTimer(ShootAgainHandle, this, &AMonster::SetShootingRetaliationState, 3.0f, false);
 	GetWorldTimerManager().SetTimer(MonsterAnimHandle, this, &AMonster::SetShootingRetaliationState, .40f, false);
 }
@@ -368,7 +366,7 @@ void AMonster::ShootRetaliationProjectile()
 			}
 
 			StraightProjectilesArray[i]->SetWorldLocation(ProjectileLocation);
-		//	StraightProjectilesArray[i]->SetVisibility(true);
+			//	StraightProjectilesArray[i]->SetVisibility(true);
 			StraightProjectilesArray[i]->GetChildComponent(0)->SetWorldLocation(ProjectileLocation + ProjectileAnimOffset);
 			StraightProjectilesArray[i]->GetChildComponent(0)->SetVisibility(true);
 			ShotsInUse++;
@@ -424,13 +422,13 @@ void AMonster::ShootRadialProjectiles()
 			{
 				NewShipLocation.Y = (counter*.15);
 			}
-			else 
+			else
 			{
 				NewShipLocation.Y = (counter*.15)*-1;
 			}
 			NewShipLocation.Normalize(0.01f);
 			NewShipLocation *= ProjectileSpeed;
-			
+
 
 			if (Difficulty == EDifficulty::Easy)
 			{
@@ -449,7 +447,7 @@ void AMonster::ShootRadialProjectiles()
 			}
 
 			RadialProjectilesArray[i]->SetWorldLocation(ProjectileLocation);
-		//	RadialProjectilesArray[i]->SetVisibility(true);
+			//	RadialProjectilesArray[i]->SetVisibility(true);
 			RadialProjectilesArray[i]->GetChildComponent(0)->SetWorldLocation(ProjectileLocation + ProjectileAnimOffset);
 			RadialProjectilesArray[i]->GetChildComponent(0)->SetVisibility(true);
 			ShotsInUse++;
@@ -509,7 +507,7 @@ void AMonster::ShootSpreadProjectiles()
 		else
 		{
 			FVector ProjectileLocation = GetActorLocation();
-			FVector NewShipLocation = GetShipLocation() + counter*20;
+			FVector NewShipLocation = GetShipLocation() + counter * 20;
 
 			if (Difficulty == EDifficulty::Easy)
 			{
@@ -528,7 +526,7 @@ void AMonster::ShootSpreadProjectiles()
 			}
 
 			SpreadProjectilesArray[i]->SetWorldLocation(ProjectileLocation);
-		//	SpreadProjectilesArray[i]->SetVisibility(true);
+			//	SpreadProjectilesArray[i]->SetVisibility(true);
 
 			SpreadProjectilesArray[i]->GetChildComponent(0)->SetWorldLocation(ProjectileLocation + ProjectileAnimOffset);
 			SpreadProjectilesArray[i]->GetChildComponent(0)->SetVisibility(true);
@@ -605,7 +603,7 @@ void AMonster::UpdateProjectiles(float DeltaTime)
 
 			FVector NewProjectileLocation = FVector(RadialProjectilesArray[i]->GetComponentLocation().X + RadialProjectilesLocations[i].X*DeltaTime,
 				RadialProjectilesArray[i]->GetComponentLocation().Y + RadialProjectilesLocations[i].Y * DeltaTime, 0.0f);
-		
+
 			RadialProjectilesArray[i]->SetWorldLocation(NewProjectileLocation);
 			RadialProjectilesArray[i]->GetChildComponent(0)->SetWorldLocation(NewProjectileLocation + ProjectileAnimOffset);
 		}
@@ -639,7 +637,7 @@ bool AMonster::UpdateOverlappingProjectiles(TArray<UPrimitiveComponent*>& Overla
 			AShip* ship = Cast<AShip>(OverlappingComponents[i]->GetAttachmentRootActor());
 
 			ship->bIsDead = true;
-			
+
 			ShotsInUse -= 1;
 			return true;
 		}
@@ -721,7 +719,7 @@ FVector AMonster::GetShipLocation()
 {
 	FVector TargetDirection = ShipLocation - GetActorLocation();
 	TargetDirection.Normalize(0.01f);
-	return TargetDirection*ProjectileSpeed;	
+	return TargetDirection*ProjectileSpeed;
 }
 
 void AMonster::SetInitialProjectileSettings(UPaperSpriteComponent*& PrimComp)
