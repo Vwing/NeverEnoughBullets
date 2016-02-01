@@ -46,6 +46,12 @@ public:
 		TArray<FVector> SpreadProjectilesLocations;
 	UPROPERTY(VisibleAnywhere, Category = "Projectiles")
 		TArray<FVector> RadialProjectilesLocations;
+	UPROPERTY(VisibleAnywhere, Category = "Projectiles")
+		TArray<int8> StraightProjectilesColor;
+	UPROPERTY(VisibleAnywhere, Category = "Projectiles")
+		TArray<int8> SpreadProjectilesColor;
+	UPROPERTY(VisibleAnywhere, Category = "Projectiles")
+		TArray<int8> RadialProjectilesColor;
 
 	UPROPERTY(EditAnywhere, Category = "Anim")
 	class UPaperFlipbookComponent* MonsterFlipbook;
@@ -110,12 +116,9 @@ public:
 		};
 	};
 	EDifficulty::Type Difficulty;
-
+	
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
 	float ProjectileSpeed;
-	UPROPERTY(EditAnywhere, Category="Projectiles")
-	float MinShootTime;
-	UPROPERTY(EditAnywhere, Category="Projectiles")
-	float MaxShootTime;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category = "Projectiles")
 		int32 NumberOfSpreadShots;
@@ -148,12 +151,11 @@ public:
 		float HardMaxShootAgainTime;
 
 	bool bCanShoot;
-
 	void SetCanShoot();
 	void SetInitialProjectileSettings(UPaperSpriteComponent*& PrimComp);
 	
 	void UpdateProjectiles(float DeltaTime);
-	bool UpdateOverlappingProjectiles(TArray<UPrimitiveComponent*>& OverlappingComponents);
+	bool UpdateOverlappingProjectiles(TArray<UPrimitiveComponent*>& OverlappingComponents, int color);
 
 	void SetDamagedState();
 	void SetDamagedAnim();

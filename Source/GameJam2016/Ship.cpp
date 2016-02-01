@@ -12,7 +12,7 @@ AShip::AShip()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	ProjectileRotation = FRotator(90.0f, 90.0f, 0.0f);
+	ProjectileRotation = FRotator(90.0f, 0.0f, 0.0f);
 	AbsorbSpriteScale = FVector(1.2f, 1.0f, 1.2);
 	InnerBoundsRotation = FRotator(90.0f, 0.0f, 90.0f);
 	ShipSpriteScale = FVector(1.3f, 1.0f, .50f);
@@ -20,49 +20,60 @@ AShip::AShip()
 	ProjectileAnimOffset = FVector(-75.0f, 0.0f, 1.0f);
 	ProjectileAnimScale = FVector(8.0f, 8.0f, 8.0f);
 	InnerBoundsScale = FVector(5.0f, 1.0f, 10.0f);
-	ArrowSpriteScale = FVector(.4f, .4f, .4f);
+	ArrowAnimScale = FVector(.4f, .4f, .4f);
+	
 
 
-	ShipSprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("ShipSprite"));
-	ConstructorHelpers::FObjectFinder<UPaperSprite> ShipSpriteAsset(TEXT("PaperSprite'/Game/Sprites/InnerBounds.InnerBounds'"));
-	ShipSprite->SetSprite(ShipSpriteAsset.Object);
-	RootComponent = ShipSprite;
+	ShipHitBox = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("ShipHitBox"));
+	ConstructorHelpers::FObjectFinder<UPaperSprite> ShipHitBoxAsset(TEXT("PaperSprite'/Game/Sprites/InnerBounds.InnerBounds'"));
+	ShipHitBox->SetSprite(ShipHitBoxAsset.Object);
+	RootComponent = ShipHitBox;
 
-	IdleAnim = CreateDefaultSubobject<UPaperFlipbook>(TEXT("IdleAnim"));
-	ConstructorHelpers::FObjectFinder<UPaperFlipbook> IdleAnimationAsset(TEXT("PaperFlipbook'/Game/Sprites/ShipSprites/ShipRocketForward.ShipRocketForward'"));
-	IdleAnim = IdleAnimationAsset.Object;
+	ShipHitBox->bGenerateOverlapEvents = true;
+	ShipHitBox->SetNotifyRigidBodyCollision(true);
+	ShipHitBox->GetBodyInstance()->bLockZTranslation = true;
+	SetActorEnableCollision(true);
+	ShipHitBox->SetSimulatePhysics(false);
+	ShipHitBox->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
+	ShipHitBox->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	ShipHitBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+	ShipHitBox->SetEnableGravity(false);
+	ShipHitBox->bMultiBodyOverlap = true;
+	ShipHitBox->GetBodyInstance()->bUseCCD = true;
+	ShipHitBox->SetWorldScale3D(ShipSpriteScale);
+
 
 	ShipFlipbook = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("ShipFlipbook"));
-	ShipFlipbook->SetFlipbook(IdleAnim);
 	ShipFlipbook->AttachTo(RootComponent);
 	ShipFlipbook->SetAbsolute(false,true,true);
-	ShipFlipbook->RelativeLocation = FVector(0.0f, 0.0f, 0.0f);
+	ShipFlipbook->RelativeLocation = FVector(0.0f, 0.0f, 0.0f);	
 
-	ShipSprite->bGenerateOverlapEvents = true;
-	ShipSprite->SetNotifyRigidBodyCollision(true);
-	ShipSprite->GetBodyInstance()->bLockZTranslation = true;
-	SetActorEnableCollision(true);
-	ShipSprite->SetSimulatePhysics(false);
-	ShipSprite->SetCollisionObjectType(ECollisionChannel::ECC_Pawn);
-	ShipSprite->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	ShipSprite->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
-	ShipSprite->SetEnableGravity(false);
-	ShipSprite->bMultiBodyOverlap = true;
-	ShipSprite->GetBodyInstance()->bUseCCD = true;
-	ShipSprite->SetWorldScale3D(ShipSpriteScale);
+	
+	ShipIdleAnim = CreateDefaultSubobject<UPaperFlipbook>(TEXT("ShipIdleAnim"));
+	ShipMoveForwardAnim = CreateDefaultSubobject<UPaperFlipbook>(TEXT("ShipMoveForwardAnim"));
+	ShipMoveUpAnim = CreateDefaultSubobject<UPaperFlipbook>(TEXT("ShipMoveUpAnim"));
+	ShipMoveDownAnim = CreateDefaultSubobject<UPaperFlipbook>(TEXT("ShipMoveDownAnim"));
+	ShipBlueAnim = CreateDefaultSubobject<UPaperFlipbook>(TEXT("ShipBlueAnim"));
+
+	ConstructorHelpers::FObjectFinder<UPaperFlipbook> ShipIdleAnimAsset(TEXT("PaperFlipbook'/Game/Sprites/ShipSprites/ShipAnimIdle.ShipAnimIdle'"));
+	ShipIdleAnim = ShipIdleAnimAsset.Object;
+	ConstructorHelpers::FObjectFinder<UPaperFlipbook> ShipMoveForwardAnimAsset(TEXT("PaperFlipbook'/Game/Sprites/ShipSprites/ShipAnimMoveForward.ShipAnimMoveForward'"));
+	ShipMoveForwardAnim = ShipMoveForwardAnimAsset.Object;
+	ConstructorHelpers::FObjectFinder<UPaperFlipbook> ShipMoveUpAnimAsset(TEXT("PaperFlipbook'/Game/Sprites/ShipSprites/ShipAnimMoveUp.ShipAnimMoveUp'"));
+	ShipMoveUpAnim = ShipMoveUpAnimAsset.Object;
+	ConstructorHelpers::FObjectFinder<UPaperFlipbook> ShipMoveDownAnimAsset(TEXT("PaperFlipbook'/Game/Sprites/ShipSprites/ShipAnimMoveDown.ShipAnimMoveDown'"));
+	ShipMoveDownAnim = ShipMoveDownAnimAsset.Object;
+	ConstructorHelpers::FObjectFinder<UPaperFlipbook> ShipBlueAnimAsset(TEXT("PaperFlipbook'/Game/Sprites/ShipSprites/ShipAnimBlue.ShipAnimBlue'"));
+	ShipBlueAnim = ShipBlueAnimAsset.Object;
+
+		
+	ShipFlipbook->SetFlipbook(ShipIdleAnim);
+
 
 	AbsorbSprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("AbsorbSprite"));
 	ConstructorHelpers::FObjectFinder<UPaperSprite> AbsorbSpriteAsset(TEXT("PaperSprite'/Game/Sprites/AbsorbSprite.AbsorbSprite'"));
 	AbsorbSprite->SetSprite(AbsorbSpriteAsset.Object);
 	AbsorbSprite->SetVisibility(true);
-
-	/*
-	UPaperFlipbookComponent* AbsorbFlipbook = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("AbsorbFlipbook"));
-	ConstructorHelpers::FObjectFinder<UPaperFlipbook> AbsorbFlipbookAsset(TEXT("PaperSprite'/Game/Sprites/AbsorbSprite.AbsorbSprite'"));
-	AbsorbFlipbook->SetFlipbook(AbsorbFlipbookAsset.Object);
-	AbsorbFlipbook->SetVisibility(true);
-	*/
-
 
 	AbsorbSprite->bGenerateOverlapEvents = true;
 	AbsorbSprite->SetNotifyRigidBodyCollision(true);
@@ -103,6 +114,21 @@ AShip::AShip()
 		ProjectilesArray.Push(PlayerProjectile);
 	}
 	
+	//arrow sprite
+	ConstructorHelpers::FObjectFinder<UPaperFlipbook> ArrowAnimAsset(TEXT("PaperFlipbook'/Game/Sprites/AnimArrow.AnimArrow'"));
+
+	TopArrowAnim = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("TopArrowAnim"));
+	TopArrowAnim->SetFlipbook(ArrowAnimAsset.Object);
+	TopArrowAnim->SetVisibility(false);
+	TopArrowAnim->AttachTo(TopInnerBounds);
+	TopArrowAnim->SetAbsolute(true, true, true);
+
+	BottomArrowAnim = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("BottomArrowAnim"));
+	BottomArrowAnim->SetFlipbook(ArrowAnimAsset.Object);
+	BottomArrowAnim->SetVisibility(false);
+	BottomArrowAnim->AttachTo(BottomInnerBounds);
+	BottomArrowAnim->SetAbsolute(true, true, true);
+	
 
 	TopInnerBounds = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("TopInnerBounds"));
 	ConstructorHelpers::FObjectFinder<UPaperSprite> InnerBoundsAsset(TEXT("PaperSprite'/Game/Sprites/InnerBounds.InnerBounds'"));
@@ -115,18 +141,6 @@ AShip::AShip()
 	BottomInnerBounds->AttachTo(RootComponent);
 	BottomInnerBounds->SetAbsolute(true, true, true);
 
-	ConstructorHelpers::FObjectFinder<UPaperSprite> ArrowSpriteAsset(TEXT("PaperSprite'/Game/Sprites/Arrow_Sprite_0.Arrow_Sprite_0'"));
-	TopArrowSprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("TopArrowSprite"));
-	TopArrowSprite->AttachTo(RootComponent);
-	TopArrowSprite->SetAbsolute(true, true, true);
-	TopArrowSprite->SetWorldScale3D(ArrowSpriteScale);
-	TopArrowSprite->SetWorldLocation(FVector(-200, -200, -400));
-
-	BottomArrowSprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("BottomArrowSprite"));
-	BottomArrowSprite->AttachTo(RootComponent);
-	BottomArrowSprite->SetAbsolute(true, true, true);
-	BottomArrowSprite->SetWorldScale3D(ArrowSpriteScale);
-	BottomArrowSprite->SetWorldLocation(FVector(-200, -200, -400));
 
 	ShootingSound = CreateDefaultSubobject<UAudioComponent>(TEXT("ShootingSound"));
 	ConstructorHelpers::FObjectFinder<USoundBase> ShootingSoundAsset(TEXT("SoundWave'/Game/SFX/Burn.Burn'"));
@@ -144,7 +158,7 @@ AShip::AShip()
 	ConstructorHelpers::FObjectFinder<USoundBase> BlasterSoundAsset(TEXT("SoundWave'/Game/SFX/Blaster.Blaster'"));
 	BlasterSound->SetSound(BlasterSoundAsset.Object);
 
-	ShipState = EShipStates::Static;
+	ShipState = EShipStates::Idle;
 	MaxVerticalSpeed = 900.0f;
 	MaxHorizontalSpeed = 900.0f;
 	CurrentVerticalSpeed = 0.0f;
@@ -160,13 +174,15 @@ AShip::AShip()
 	bIsDead = false;
 	bIsExploding = false;
 	bCanSlice = true;
-
+	bGameHasStarted = false;
+	bAreArrowsOn = false;
 	ProjectileSpeed = 1200.0f;
 	
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 	DebugString = "";
 	MonsterReference = nullptr;
-	AbsorbTimer = .3f;
+	AbsorbAgainTimer= 1.25f;
+	AbsorbDuration = .3f;
 }
 
 // Called when the game starts or when spawned
@@ -186,14 +202,10 @@ void AShip::BeginPlay()
 		ProjectilesArray[i]->GetChildComponent(0)->RelativeRotation = ProjectileRotation;
 		ProjectilesArray[i]->GetChildComponent(0)->SetWorldLocation(FVector(-200.0f, -300.0f, -100.0f));
 	}
-	
-
-	AbsorbSprite->RelativeRotation = ProjectileRotation;
-	AbsorbSprite->SetWorldScale3D(AbsorbSpriteScale);
-	AbsorbSprite->SetWorldLocation(FVector(-100.0f, -200.0f, -200.0f));
 
 	ShipFlipbook->SetWorldScale3D(ShipFlipbookScale);
-	ShipSprite->SetWorldScale3D(ShipSpriteScale);
+	ShipHitBox->SetWorldScale3D(ShipSpriteScale);
+	ShipHitBox->SetWorldRotation(InnerBoundsRotation);
 	UpdateMonster();
 
 	TopInnerBounds->SetWorldRotation(InnerBoundsRotation);
@@ -201,8 +213,17 @@ void AShip::BeginPlay()
 	BottomInnerBounds->SetWorldRotation(InnerBoundsRotation);
 	BottomInnerBounds->SetWorldScale3D(InnerBoundsScale);
 
-	TopArrowSprite->SetWorldRotation(ProjectileRotation);
-	BottomArrowSprite->SetWorldRotation(ProjectileRotation);
+	BottomArrowAnim->SetWorldRotation(ProjectileRotation);
+	BottomArrowAnim->SetWorldScale3D(ArrowAnimScale);
+
+	TopArrowAnim->SetWorldRotation(ProjectileRotation);
+	TopArrowAnim->AddRelativeRotation(FRotator(0.0f, 0.0f, 180.0f));
+	TopArrowAnim->SetWorldScale3D(ArrowAnimScale);
+
+	AbsorbSprite->RelativeRotation = ProjectileRotation;
+	AbsorbSprite->SetWorldScale3D(AbsorbSpriteScale);
+	AbsorbSprite->SetWorldLocation(FVector(-100.0f, -200.0f, -200.0f));
+	AbsorbAnimXOffset = ShipHitBox->Bounds.BoxExtent.X * 1.75;
 
 	Super::BeginPlay();
 }
@@ -213,36 +234,46 @@ void AShip::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	MakeMovements(DeltaTime);
-	ShipSprite->GetOverlappingComponents(OverlappingComponents);
+	ShipHitBox->GetOverlappingComponents(OverlappingComponents);
 	UpdateOverlappingComponents(OverlappingComponents);
 
 	if (ShotsInUse > 0)
 	{
 		UpdateProjectiles(DeltaTime);
 	}
-	if (!bCanAbsorb) // if currently active(!bCanAbsorb)
-	{
-		UpdateAbsorb(); 
-	}
 	if (!bIsDead)
 	{
 	//	BlasterSound->Play();
 	}
+	if (bAreArrowsOn)
+	{
+		UpdateArrows();
+	}
+
 	switch (ShipState)
 	{
-	case EShipStates::Static:
+	case EShipStates::Idle:
+		SetAnim(ShipIdleAnim);
 		break;
 
-	case EShipStates::MovingVertical:
+	case EShipStates::MoveUp:
+		SetAnim(ShipMoveUpAnim);
 		break;
 
-	case EShipStates::MovingHorizontal:
+	case EShipStates::MoveDown:
+		SetAnim(ShipMoveDownAnim);
 		break;
 
-	case EShipStates::MovingHorizontalShooting:
+	case EShipStates::MoveForward:
+		SetAnim(ShipMoveForwardAnim);
 		break;
 
-	case EShipStates::MovingVerticalShooting:
+	case EShipStates::Absorb:
+		SetAnim(ShipBlueAnim);
+		if (!bCanAbsorb) // if currently active(!bCanAbsorb)
+		{
+			UpdateAbsorb();
+		}
 		break;
 
 	case EShipStates::Shooting:
@@ -305,6 +336,25 @@ void AShip::MoveUp(float AxisValue)
 	{
 		return;
 	}
+
+	if (AxisValue != 0)
+	{
+		if (ShipState == EShipStates::Idle ||
+			ShipState == EShipStates::MoveForward ||
+			ShipState == EShipStates::MoveDown ||
+			ShipState == EShipStates::MoveUp)
+		{
+			if (AxisValue > 0)
+			{
+				ShipState = EShipStates::MoveUp;
+			}
+			else if (AxisValue < 0)
+			{
+				ShipState = EShipStates::MoveDown;
+			}
+		}
+	}
+	
 	CurrentVerticalSpeed = AxisValue*MaxVerticalSpeed;
 }
 
@@ -314,6 +364,14 @@ void AShip::MoveRight(float AxisValue)
 		ShipState == EShipStates::Closed)
 	{
 		return;
+	}
+
+	if (AxisValue != 0)
+	{
+		if (ShipState == EShipStates::Idle)
+		{
+			ShipState = EShipStates::MoveForward;
+		}
 	}
 	CurrentHorizontalSpeed = AxisValue*MaxHorizontalSpeed;
 }
@@ -352,8 +410,15 @@ void AShip::MakeMovements(float DeltaTime)
 		bCanMoveLeft = true;
 		CurrentHorizontalSpeed *= DeltaTime;
 	}
-
-	SetActorLocation(GetActorLocation() + (FVector(CurrentHorizontalSpeed, CurrentVerticalSpeed, 0.0f)));
+	
+	if (CurrentVerticalSpeed == 0 && CurrentHorizontalSpeed == 0 && ShipState != EShipStates::Absorb)
+	{
+		ShipState = EShipStates::Idle;
+	}
+	else
+	{
+		SetActorLocation(GetActorLocation() + (FVector(CurrentHorizontalSpeed, CurrentVerticalSpeed, 0.0f)));
+	}
 }
 
 void AShip::UpdateOverlappingComponents(TArray<UPrimitiveComponent*>& OverlappingComponents)
@@ -427,7 +492,13 @@ void AShip::UpdateOverlappingComponents(TArray<UPrimitiveComponent*>& Overlappin
 		}
 		else if (OverlappingComponents[i]->GetName().Contains("TopInnerBounds"))
 		{
-			//TopArrowSprite->SetWorldLocation(FVector(GetActorLocation().X, TopInnerBounds->GetComponentLocation().Y, 0.0f));
+			bAreArrowsOn = true;
+			GetWorldTimerManager().SetTimer(ArrowHandle, this, &AShip::TurnArrowsOff, .3f, false);
+		}
+		else if (OverlappingComponents[i]->GetName().Contains("BottomInnerBounds"))
+		{
+			bAreArrowsOn = true;
+			GetWorldTimerManager().SetTimer(ArrowHandle, this, &AShip::TurnArrowsOff, .3f, false);
 		}
 	}
 }
@@ -442,7 +513,7 @@ void AShip::ShootProjectile()
 		}
 		else
 		{
-			FVector ProjectileLocation = FVector(GetActorLocation().X,//+ ShipSprite->Bounds.BoxExtent.X
+			FVector ProjectileLocation = FVector(GetActorLocation().X,//+ ShipHitBoxHolder->Bounds.BoxExtent.X
 				GetActorLocation().Y, 0.0f);
 
 			ProjectilesArray[i]->SetWorldLocation(ProjectileLocation);
@@ -496,6 +567,7 @@ bool AShip::UpdateOverlappingProjectiles(TArray<UPrimitiveComponent*>& Overlappi
 
 			MonsterReference->ShipLocation = GetActorLocation();
 			MonsterReference->SetDamagedState();
+			bGameHasStarted = true;
 			
 			ShotsInUse -= 1;
 			return true;
@@ -513,6 +585,7 @@ void AShip::Absorb()
 {
 	if (bCanAbsorb)
 	{
+		ShipState = EShipStates::Absorb;
 		AbsorbSound->Play();
 		bCanAbsorb = false;
 		InitiateAbsorb();
@@ -521,10 +594,11 @@ void AShip::Absorb()
 
 void AShip::StopAbsorb()
 {
-	AbsorbSprite->SetVisibility(false);
+	AbsorbSprite->SetVisibility(true);
 	AbsorbSprite->SetWorldLocation(FVector(-200.0f, -200.0f, -200.0f));
+	ShipState = EShipStates::Idle;
 
-	GetWorldTimerManager().SetTimer(ShipHandle, this, &AShip::AllowAbsorb, AbsorbTimer, false); //timer to allow absorb again
+	GetWorldTimerManager().SetTimer(ShipHandle, this, &AShip::AllowAbsorb, AbsorbAgainTimer, false); //timer to allow absorb again
 }
 
 void AShip::InitiateAbsorb()
@@ -532,33 +606,18 @@ void AShip::InitiateAbsorb()
 	AbsorbSprite->SetVisibility(true);
 	UpdateAbsorb();
 
-	GetWorldTimerManager().SetTimer(ShipHandle, this, &AShip::StopAbsorb, AbsorbTimer, false);
+	GetWorldTimerManager().SetTimer(ShipHandle, this, &AShip::StopAbsorb, AbsorbDuration, false);
 }
 
 void AShip::AllowAbsorb()
 {
 	bCanAbsorb = true;
 	bCanSlice = true;
-	AbsorbSprite->SetVisibility(false);
-	AbsorbSprite->SetWorldLocation(FVector(-200.0f, -200.0f, -200.0f));
-}
-
-void AShip::UpdateMonster()
-{
-	if (MonsterReference == nullptr ||
-		MonsterReference == NULL)
-	{
-		ShipState = EShipStates::ErrorState;
-		return;
-	}
-
-	MonsterReference->ShipLocation = GetActorLocation();
-	GetWorldTimerManager().SetTimer(UpdateMonsterHandle, this, &AShip::UpdateMonster, .50f, false);
 }
 
 void AShip::UpdateAbsorb()
 {
-	AbsorbSprite->SetWorldLocation(FVector(GetActorLocation().X + ShipSprite->Bounds.BoxExtent.X*2.0f,
+	AbsorbSprite->SetWorldLocation(FVector(GetActorLocation().X + AbsorbAnimXOffset,
 		GetActorLocation().Y, 0.0f));
 
 	if (bCanSlice)
@@ -579,9 +638,44 @@ void AShip::UpdateAbsorb()
 					MonsterReference->SetDamagedState();
 					SliceSound->Play();
 					bCanSlice = false;
+					bGameHasStarted = true;
 				}
 			}
 		}
 	}
-	
+}
+
+void AShip::UpdateMonster()
+{
+	if (MonsterReference == nullptr ||
+		MonsterReference == NULL)
+	{
+		ShipState = EShipStates::ErrorState;
+		return;
+	}
+
+	MonsterReference->ShipLocation = GetActorLocation();
+	GetWorldTimerManager().SetTimer(UpdateMonsterHandle, this, &AShip::UpdateMonster, 0.750f, false);
+}
+
+void AShip::SetAnim(UPaperFlipbook* AnimAsset)
+{
+	ShipFlipbook->SetFlipbook(AnimAsset);
+}
+
+void AShip::UpdateArrows()
+{
+	DebugString = "UpdateArrows";
+	TopArrowAnim->SetVisibility(true);
+	TopArrowAnim->SetWorldLocation(FVector(GetActorLocation().X, TopInnerBounds->GetComponentLocation().Y + TopArrowAnim->Bounds.BoxExtent.Y*2, 0.0f));
+
+	BottomArrowAnim->SetVisibility(true);
+	BottomArrowAnim->SetWorldLocation(FVector(GetActorLocation().X, BottomInnerBounds->GetComponentLocation().Y - BottomArrowAnim->Bounds.BoxExtent.X*2, 0.0f));
+}
+
+void AShip::TurnArrowsOff()
+{
+	bAreArrowsOn = false;
+	TopArrowAnim->SetVisibility(false);
+	BottomArrowAnim->SetVisibility(false);
 }

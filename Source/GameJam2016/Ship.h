@@ -32,6 +32,7 @@ public:
 	void UpdateOverlappingComponents(TArray<UPrimitiveComponent*>& OverlappingComponents);
 	bool UpdateOverlappingProjectiles(TArray<UPrimitiveComponent*>& OverlappingComponents);
 
+		
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		float MaxVerticalSpeed;
 	UPROPERTY(EditAnywhere, Category = "Stats")
@@ -61,11 +62,11 @@ public:
 	{
 		enum Type
 		{
-			Static,
-			MovingHorizontal,
-			MovingVertical,
-			MovingVerticalShooting,
-			MovingHorizontalShooting,
+			Idle,
+			MoveUp,
+			MoveDown,
+			MoveForward,
+			Absorb,
 			Shooting,
 			Damaged,
 			ErrorState,
@@ -75,15 +76,40 @@ public:
 
 	EShipStates::Type ShipState;
 
-	UPROPERTY(EditAnywhere, Category = "Stats")
-	class UPaperSpriteComponent* ShipSprite;
-	UPROPERTY(EditAnywhere, Category = "Stats")
-	class UPaperSpriteComponent* AbsorbSprite;
-	UPROPERTY(EditAnywhere, Category = "Stats")
-	class UPaperFlipbookComponent* ShipFlipbook;
-	UPROPERTY(EditAnywhere, Category = "Stats")
-	class UPaperFlipbook* IdleAnim;
+	UPROPERTY(EditAnywhere, Category = "Anim")
+	class UPaperSpriteComponent* ShipSpriteContainer;
+	UPROPERTY(EditAnywhere, Category = "Anim")
+	class UPaperSpriteComponent* ShipHitBox;
 
+	// flipbook components
+	UPROPERTY(EditAnywhere, Category = "Anim")
+	class UPaperFlipbookComponent* ShipFlipbook;
+	UPROPERTY(EditAnywhere, Category = "Anim")
+	class UPaperFlipbook* ShipIdleAnim;
+	UPROPERTY(EditAnywhere, Category = "Anim")
+	class UPaperFlipbook* ShipMoveForwardAnim;
+	UPROPERTY(EditAnywhere, Category = "Anim")
+	class UPaperFlipbook* ShipMoveDownAnim;
+	UPROPERTY(EditAnywhere, Category = "Anim")
+	class UPaperFlipbook* ShipMoveUpAnim;
+	UPROPERTY(EditAnywhere, Category = "Anim")
+	class UPaperFlipbook* ShipBlueAnim;
+
+	// absorb components
+	UPROPERTY(EditAnywhere, Category = "Anim")
+	class UPaperSpriteComponent* AbsorbSprite;
+	
+	// Arrow Components
+	UPROPERTY(EditAnywhere, Category = "Arrow")
+	class UPaperFlipbookComponent* TopArrowAnim;
+	UPROPERTY(EditAnywhere, Category = "Arrow")
+	class UPaperFlipbookComponent* BottomArrowAnim;
+	UPROPERTY(EditAnywhere, Category = "Arrow")
+		FVector ArrowAnimScale;
+	
+
+
+	// audio components
 	UPROPERTY(EditAnywhere, Category = "Audio")
 	class UAudioComponent* AbsorbSound;
 	UPROPERTY(EditAnywhere, Category = "Audio")
@@ -93,13 +119,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Audio")
 	class UAudioComponent* BlasterSound;
 
-	UPROPERTY(EditAnywhere, Category = "Stats")
-	class UPaperSpriteComponent* TopArrowSprite;
-	UPROPERTY(EditAnywhere, Category = "Stats")
-	class UPaperSpriteComponent* BottomArrowSprite;
-	UPROPERTY(EditAnywhere, Category = "Stats")
-	FVector ArrowSpriteScale;
 
+	
 
 	UPROPERTY(EditAnywhere, Category = "Stats")
 	class UPaperSpriteComponent* TopInnerBounds;
@@ -128,6 +149,7 @@ public:
 	FTimerHandle ShipHandle;
 	FTimerHandle UpdateMonsterHandle;
 	FTimerHandle AbsorbHandle;
+	FTimerHandle ArrowHandle;
 
 	void AllowAbsorb();
 
@@ -137,7 +159,9 @@ public:
 		FVector ProjectileAnimScale;
 
 	UPROPERTY(EditAnywhere, Category = "Stats")
-		float AbsorbTimer;
+		float AbsorbAgainTimer;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		float AbsorbDuration;
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		FVector AbsorbSpriteScale;
 	UPROPERTY(EditAnywhere, Category = "Stats")
@@ -151,4 +175,12 @@ public:
 	
 	void UpdateAbsorb();
 	bool bCanSlice;
+	bool bGameHasStarted;
+	bool bAreArrowsOn;
+	void SetAnim(UPaperFlipbook* AnimAsset);
+	void UpdateArrows();
+	
+	void TurnArrowsOff();
+	UPROPERTY(EditAnywhere,Category = "Stats")
+	float AbsorbAnimXOffset;
 };

@@ -8,9 +8,7 @@
 AMonster::AMonster()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	MaxShotsUsed = 30;
-	ProjectileAnimScale = FVector(3.0f, 3.0f, 3.0f);
-	ProjectileSpriteScale = FVector(1.0f, 1.0f, 1.0f);
+	
 
 	MonsterSprite = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("MonsterSprite"));
 	ConstructorHelpers::FObjectFinder<UPaperSprite> MonsterSpriteAsset(TEXT("PaperSprite'/Game/Sprites/BossSprites/Boss_Idle1.Boss_Idle1'"));
@@ -84,10 +82,11 @@ AMonster::AMonster()
 	for (int i = 0; i < 10; i++)
 	{
 		FVector newLocation = FVector(0.0f, 0.0f, 0.0f);
-		SpreadProjectilesLocations.Push(newLocation);
+		int8 color = 0; // 0 == yellow, 1 == blue
 
 		UPaperSpriteComponent* SpreadProjectile = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("SpreadProjectilez" + i));
 		SpreadProjectile->SetSprite(SpreadProjectileAsset.Object);
+		SpreadProjectile->CurrentTag = 1;
 
 		SpreadProjectile->AttachTo(RootComponent);
 
@@ -102,8 +101,9 @@ AMonster::AMonster()
 		UPaperFlipbookComponent* SpreadProjectileAnim = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("SpreadProjectileAnim" + i));
 		SpreadProjectileAnim->SetFlipbook(YellowProjectileAnimAsset.Get());
 
-		if (i == 3 || i == 6 || i == 9)
+		if (i % 2 == 0)
 		{
+			color = 1;
 			SpreadProjectileAnim->SetFlipbook(BlueProjectileAnimAsset.Get());
 		}
 		SpreadProjectileAnim->AttachTo(SpreadProjectile);
@@ -112,6 +112,8 @@ AMonster::AMonster()
 		SpreadProjectileAnim->SetVisibility(false);
 
 		SpreadProjectilesArray.Push(SpreadProjectile);
+		SpreadProjectilesLocations.Push(newLocation);
+		SpreadProjectilesColor.Push(color);
 	}
 
 	ConstructorHelpers::FObjectFinder<UPaperSprite> StraightProjectileAsset(TEXT("PaperSprite'/Game/Sprites/NormalShot.NormalShot'"));
@@ -120,10 +122,11 @@ AMonster::AMonster()
 	for (int i = 0; i < 10; i++)
 	{
 		FVector newLocation = FVector(0.0f, 0.0f, 0.0f);
-		StraightProjectilesLocations.Push(newLocation);
+		int color = 0;
 
 		UPaperSpriteComponent* StraightProjectile = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("StraightProjectile" + i));
 		StraightProjectile->SetSprite(StraightProjectileAsset.Object);
+		StraightProjectile->CurrentTag = 1;
 		StraightProjectile->AttachTo(RootComponent);
 
 		StraightProjectile->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
@@ -137,8 +140,9 @@ AMonster::AMonster()
 		UPaperFlipbookComponent* StraightProjectileAnim = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("StraightProjcAnim" + i));
 		StraightProjectileAnim->SetFlipbook(YellowProjectileAnimAsset.Get());
 
-		if (i == 3 || i == 6 || i == 9)
+		if (i % 2 == 0)
 		{
+			color = 1;
 			StraightProjectileAnim->SetFlipbook(BlueProjectileAnimAsset.Get());
 		}
 		StraightProjectileAnim->AttachTo(StraightProjectile);
@@ -147,6 +151,8 @@ AMonster::AMonster()
 		StraightProjectileAnim->SetVisibility(false);
 
 		StraightProjectilesArray.Push(StraightProjectile);
+		StraightProjectilesLocations.Push(newLocation);
+		StraightProjectilesColor.Push(color);
 	}
 
 
@@ -156,10 +162,12 @@ AMonster::AMonster()
 	for (int i = 0; i < 10; i++)
 	{
 		FVector newLocation = FVector(0.0f, 0.0f, 0.0f);
-		RadialProjectilesLocations.Push(newLocation);
+		int color = 0;
 
 		UPaperSpriteComponent* RadialProjectile = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("RadialProjectilew" + i));
 		RadialProjectile->SetSprite(RadialProjectileAsset.Object);
+		RadialProjectile->CurrentTag = 1;
+		RadialProjectile->AttachTo(RootComponent);
 
 		RadialProjectile->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
 		RadialProjectile->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -168,13 +176,14 @@ AMonster::AMonster()
 		RadialProjectile->SetEnableGravity(false);
 		RadialProjectile->SetSimulatePhysics(false);
 		RadialProjectile->SetAbsolute(true, true, true);
-		RadialProjectile->AttachTo(RootComponent);
+		
 
 		UPaperFlipbookComponent* RadialProjectileAnim = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("RadialProjectiAnim" + i));
 		RadialProjectileAnim->SetFlipbook(YellowProjectileAnimAsset.Get());
 
-		if (i == 3 || i == 6 || i == 9)
+		if (i % 2 == 0)
 		{
+			color = 1;
 			RadialProjectileAnim->SetFlipbook(BlueProjectileAnimAsset.Get());
 		}
 		RadialProjectileAnim->AttachTo(RadialProjectile);
@@ -183,36 +192,40 @@ AMonster::AMonster()
 		RadialProjectileAnim->SetVisibility(false);
 
 		RadialProjectilesArray.Push(RadialProjectile);
+		RadialProjectilesLocations.Push(newLocation);
+		RadialProjectilesColor.Push(color);
 	}
 
 	Health = 50;
 	ShotsInUse = 0;
 	MaxShotsUsed = 30;
 
-	ProjectileRotation = FRotator(90.0f, 90.0f, 0.0f);
+	ProjectileRotation = FRotator(90.0f, 0.0f, 0.0f);
 	MonsterState = EMonsterStates::Idle;
 	ShipLocation = FVector(0.0f, 0.0f, 0.0f);
 	Difficulty = EDifficulty::Easy;
 	ProjectileSpeed = 300.0f;
+	ProjectileAnimScale = FVector(5.0f, 5.0f, 5.0f);
+	ProjectileSpriteScale = FVector(.750f, .750f, .750f);
+	ProjectileAnimOffset = FVector(50.0f, 0.0f, 1.0f);
 
-	EasyMinShotMultiplier = 1.5f;
+	EasyMinShotMultiplier = .8f;
 	EasyMaxShotMultiplier = 2.0f;
-	NormalMinShotMultiplier = 2.0f;
+	NormalMinShotMultiplier = 1.0f;
 	NormalMaxShotMultiplier = 2.5f;
-	HardMinShotMultiplier = 2.5f;
+	HardMinShotMultiplier = 1.25f;
 	HardMaxShotMultiplier = 3.0f;
 
-	EasyMinShootAgainTime = .5f;
-	EasyMaxShootAgainTime = 1.0f;
-	NormalMinShootAgainTime = .3f;
-	NormalMaxShootAgainTime = .7f;
-	HardMinShootAgainTime = .2f;
-	HardMaxShootAgainTime = .5f;
+	EasyMinShootAgainTime = .8f;
+	EasyMaxShootAgainTime = 1.25f;
+	NormalMinShootAgainTime = .5f;
+	NormalMaxShootAgainTime = 1.0f;
+	HardMinShootAgainTime = .5;
+	HardMaxShootAgainTime = .8f;
 
-	NumberOfSpreadShots = 10;
+	NumberOfSpreadShots = 5;
 	NumberOfRadialShots = 10;
-
-	ProjectileAnimOffset = FVector(50.0f, 0.0f, 1.0f);
+	Difficulty = EDifficulty::Easy;
 }
 
 // Called when the game starts or when spawned
@@ -243,9 +256,6 @@ void AMonster::BeginPlay()
 		SetInitialProjectileSettings(RadialProjectilesArray[i]);
 	}
 
-
-	MinShootTime = .5f;
-	MaxShootTime = 2;
 	bCanShoot = false;
 }
 
@@ -259,7 +269,7 @@ void AMonster::Tick(float DeltaTime)
 		UpdateProjectiles(DeltaTime);
 	}
 
-	if (bCanShoot == true)
+ 	if (bCanShoot == true && ShotsInUse < 25  && MonsterState != EMonsterStates::Damaged)
 	{
 		bCanShoot = false;
 		float ShootAgainTime = GetShootAgainTime();
@@ -271,6 +281,7 @@ void AMonster::Tick(float DeltaTime)
 	switch (MonsterState)
 	{
 	case EMonsterStates::Idle:
+		MonsterFlipbook->SetFlipbook(IdleAnim);
 		break;
 
 	case EMonsterStates::ShootingStraight:
@@ -283,6 +294,7 @@ void AMonster::Tick(float DeltaTime)
 		break;
 
 	case EMonsterStates::Damaged:
+		MonsterFlipbook->SetFlipbook(DamagedAnim);
 		break;
 
 	case EMonsterStates::ErrorState:
@@ -298,7 +310,6 @@ void AMonster::SetDamagedState()
 	UpdateDifficulty();
 
 	SetDamagedAnim();
-	SetShootingRetaliationState();
 }
 
 void AMonster::SetDamagedAnim()
@@ -306,8 +317,7 @@ void AMonster::SetDamagedAnim()
 	MonsterFlipbook->SetFlipbook(DamagedAnim);
 	DamagedSound->Play();
 
-	GetWorldTimerManager().SetTimer(ShootAgainHandle, this, &AMonster::SetShootingRetaliationState, 3.0f, false);
-	GetWorldTimerManager().SetTimer(MonsterAnimHandle, this, &AMonster::SetShootingRetaliationState, .40f, false);
+	GetWorldTimerManager().SetTimer(MonsterAnimHandle, this, &AMonster::SetShootingRetaliationState, .5f, false);
 }
 
 void AMonster::SetIdleAnim()
@@ -325,7 +335,6 @@ void AMonster::SetShootingRetaliationState()
 {
 	MonsterState = EMonsterStates::ShootingRetaliationShot;
 	SetShootingRetaliationAnim();
-
 	ShootRetaliationProjectile();
 }
 
@@ -333,9 +342,9 @@ void AMonster::SetShootingRetaliationAnim()
 {
 	MonsterFlipbook->SetFlipbook(FastShotAnim);
 	RetaliationSound->Play();
-	float ShootAgainTime = GetShootAgainTime();
-	GetWorldTimerManager().SetTimer(ShootAgainHandle, this, &AMonster::SetCanShoot, ShootAgainTime, false);
-	GetWorldTimerManager().SetTimer(MonsterAnimHandle, this, &AMonster::SetIdleState, 1.0f, false);
+
+	GetWorldTimerManager().SetTimer(ShootAgainHandle, this, &AMonster::SetCanShoot, .5f, false);
+	GetWorldTimerManager().SetTimer(MonsterAnimHandle, this, &AMonster::SetIdleState, .5f, false);
 }
 
 
@@ -351,18 +360,20 @@ void AMonster::ShootRetaliationProjectile()
 		{
 			FVector ProjectileLocation = GetActorLocation();
 			FVector NewShipLocation = GetShipLocation();
+			NewShipLocation.Normalize(0.01f);
+
 
 			if (Difficulty == EDifficulty::Easy)
 			{
-				StraightProjectilesLocations[i] = NewShipLocation * EasyMaxShotMultiplier;
+				StraightProjectilesLocations[i] = ProjectileSpeed * NewShipLocation * EasyMaxShotMultiplier;
 			}
 			else if (Difficulty == EDifficulty::Normal)
 			{
-				StraightProjectilesLocations[i] = NewShipLocation* NormalMaxShotMultiplier;
+				StraightProjectilesLocations[i] = ProjectileSpeed * NewShipLocation* NormalMaxShotMultiplier;
 			}
 			else if (Difficulty == EDifficulty::Hard)
 			{
-				StraightProjectilesLocations[i] = NewShipLocation* HardMaxShotMultiplier;
+				StraightProjectilesLocations[i] = ProjectileSpeed * NewShipLocation* HardMaxShotMultiplier;
 			}
 
 			StraightProjectilesArray[i]->SetWorldLocation(ProjectileLocation);
@@ -386,7 +397,7 @@ void AMonster::SetFastShotAnim()
 	MonsterFlipbook->SetFlipbook(FastShotAnim);
 	ShootFastProjectile();
 
-	GetWorldTimerManager().SetTimer(MonsterAnimHandle, this, &AMonster::SetIdleState, .70f, false);
+	GetWorldTimerManager().SetTimer(MonsterAnimHandle, this, &AMonster::SetIdleState, .50f, false);
 }
 
 void AMonster::SetSpreadShotAnim()
@@ -401,12 +412,51 @@ void AMonster::SetRadialShotAnim()
 {
 	ShootRadialProjectiles();
 
-	GetWorldTimerManager().SetTimer(MonsterAnimHandle, this, &AMonster::SetIdleState, .32f, false);
+	GetWorldTimerManager().SetTimer(MonsterAnimHandle, this, &AMonster::SetIdleState, .4f, false);
 }
 
 void AMonster::ShootRadialProjectiles()
 {
+	float ShotSpeedMultiplier;
+
+	if (Difficulty == EDifficulty::Easy)
+	{
+		if (FMath::RandRange(0, 3) == 0)
+		{
+			ShotSpeedMultiplier = FMath::FRandRange(EasyMinShotMultiplier, EasyMinShotMultiplier * 1.2f);
+		}
+		else
+		{
+			ShotSpeedMultiplier = FMath::FRandRange(EasyMaxShotMultiplier*.8f, EasyMaxShotMultiplier);
+		}
+
+	}
+	else if (Difficulty == EDifficulty::Normal)
+	{
+
+		if (FMath::RandRange(0, 3) == 0)
+		{
+			ShotSpeedMultiplier = FMath::FRandRange(NormalMinShotMultiplier, NormalMinShotMultiplier * 1.2f);
+		}
+		else
+		{
+			ShotSpeedMultiplier = FMath::FRandRange(NormalMaxShotMultiplier*.8f, NormalMaxShotMultiplier);
+		}
+	}
+	else 
+	{
+		if (FMath::RandRange(0, 3) == 0)
+		{
+			ShotSpeedMultiplier = FMath::FRandRange(HardMinShotMultiplier, HardMinShotMultiplier * 1.15f);
+		}
+		else
+		{
+			ShotSpeedMultiplier = FMath::FRandRange(HardMaxShotMultiplier*.8f, HardMaxShotMultiplier);
+		}
+	}
+
 	int counter = 0;
+	
 	for (int i = 0; i < RadialProjectilesArray.Num() && counter < NumberOfRadialShots; i++)
 	{
 		if (RadialProjectilesArray[i]->GetChildComponent(0)->IsVisible())
@@ -415,40 +465,24 @@ void AMonster::ShootRadialProjectiles()
 		}
 		else
 		{
-			FVector ProjectileLocation = GetActorLocation();
 			FVector NewShipLocation = FVector(-1.0f, 0.0f, 0.0f);
 
 			if (counter % 2 == 0)
 			{
-				NewShipLocation.Y = (counter*.15);
+				NewShipLocation.Y = (counter*.20);
 			}
 			else
 			{
-				NewShipLocation.Y = (counter*.15)*-1;
+				NewShipLocation.Y = (counter*.20)*-1;
 			}
+
 			NewShipLocation.Normalize(0.01f);
-			NewShipLocation *= ProjectileSpeed;
-
-
-			if (Difficulty == EDifficulty::Easy)
-			{
-				float ShotSpeedMultiplier = FMath::FRandRange(EasyMinShotMultiplier, EasyMaxShotMultiplier);
-				RadialProjectilesLocations[i] = NewShipLocation * ShotSpeedMultiplier;
-			}
-			else if (Difficulty == EDifficulty::Normal)
-			{
-				float ShotSpeedMultiplier = FMath::FRandRange(NormalMinShotMultiplier, NormalMinShotMultiplier);
-				RadialProjectilesLocations[i] = NewShipLocation* ShotSpeedMultiplier;
-			}
-			else if (Difficulty == EDifficulty::Hard)
-			{
-				float ShotSpeedMultiplier = FMath::FRandRange(HardMinShotMultiplier, HardMaxShotMultiplier);
-				RadialProjectilesLocations[i] = NewShipLocation* ShotSpeedMultiplier;
-			}
-
-			RadialProjectilesArray[i]->SetWorldLocation(ProjectileLocation);
+			NewShipLocation *= ProjectileSpeed * ShotSpeedMultiplier;
+			
+			RadialProjectilesLocations[i] = NewShipLocation;
+			RadialProjectilesArray[i]->SetWorldLocation(GetActorLocation());
 			//	RadialProjectilesArray[i]->SetVisibility(true);
-			RadialProjectilesArray[i]->GetChildComponent(0)->SetWorldLocation(ProjectileLocation + ProjectileAnimOffset);
+			RadialProjectilesArray[i]->GetChildComponent(0)->SetWorldLocation(GetActorLocation() + ProjectileAnimOffset);
 			RadialProjectilesArray[i]->GetChildComponent(0)->SetVisibility(true);
 			ShotsInUse++;
 			counter++;
@@ -458,7 +492,29 @@ void AMonster::ShootRadialProjectiles()
 
 void AMonster::ShootFastProjectile()
 {
-	for (int i = 0; i < StraightProjectilesArray.Num(); i++)
+	
+	float ShotSpeedMultiplier;
+
+	if (Difficulty == EDifficulty::Easy)
+	{
+		ShotSpeedMultiplier = FMath::FRandRange(EasyMaxShotMultiplier*.8f, EasyMaxShotMultiplier);
+
+	}
+	else if (Difficulty == EDifficulty::Normal)
+	{
+		ShotSpeedMultiplier = FMath::FRandRange(NormalMinShotMultiplier*.8f, NormalMinShotMultiplier);
+	}
+	else
+	{
+		ShotSpeedMultiplier = FMath::FRandRange(HardMinShotMultiplier*.8f, HardMaxShotMultiplier);
+	}
+
+	FVector CurrentLocation = GetShipLocation() * ShotSpeedMultiplier;
+
+	int8 counter = FMath::FRandRange(1, 3);
+	int8 ShotsThisRound = 0;
+
+	for (int i = 0; i < StraightProjectilesArray.Num() &&  counter > ShotsThisRound; i++)
 	{
 		if (StraightProjectilesArray[i]->GetChildComponent(0)->IsVisible())
 		{
@@ -467,36 +523,66 @@ void AMonster::ShootFastProjectile()
 		else
 		{
 			FVector ProjectileLocation = GetActorLocation();
-			FVector NewShipLocation = GetShipLocation();
 
-			if (Difficulty == EDifficulty::Easy)
+			if (i % 2 == 0)
 			{
-				float ShotSpeedMultiplier = FMath::FRandRange(EasyMinShotMultiplier, EasyMaxShotMultiplier);
-				StraightProjectilesLocations[i] = NewShipLocation * ShotSpeedMultiplier;
+				StraightProjectilesLocations[i] = CurrentLocation + 20.0f*i;
 			}
-			else if (Difficulty == EDifficulty::Normal)
+			else
 			{
-				float ShotSpeedMultiplier = FMath::FRandRange(NormalMinShotMultiplier, NormalMinShotMultiplier);
-				StraightProjectilesLocations[i] = NewShipLocation* ShotSpeedMultiplier;
+				StraightProjectilesLocations[i] = CurrentLocation + (20.0f*i)*-1;
 			}
-			else if (Difficulty == EDifficulty::Hard)
-			{
-				float ShotSpeedMultiplier = FMath::FRandRange(HardMinShotMultiplier, HardMaxShotMultiplier);
-				StraightProjectilesLocations[i] = NewShipLocation* ShotSpeedMultiplier;
-			}
-
+			
 			StraightProjectilesArray[i]->SetWorldLocation(ProjectileLocation);
 			//StraightProjectilesArray[i]->SetVisibility(true);
 			StraightProjectilesArray[i]->GetChildComponent(0)->SetWorldLocation(ProjectileLocation + ProjectileAnimOffset);
 			StraightProjectilesArray[i]->GetChildComponent(0)->SetVisibility(true);
 			ShotsInUse++;
-			return;
+			++ShotsThisRound;
 		}
 	}
 }
 
 void AMonster::ShootSpreadProjectiles()
 {
+	float ShotSpeedMultiplier;
+
+	if (Difficulty == EDifficulty::Easy)
+	{
+		if (FMath::RandRange(0, 3) == 0)
+		{
+			ShotSpeedMultiplier = FMath::FRandRange(EasyMinShotMultiplier, EasyMinShotMultiplier * 1.2f);
+		}
+		else
+		{
+			ShotSpeedMultiplier = FMath::FRandRange(EasyMaxShotMultiplier*.8f, EasyMaxShotMultiplier);
+		}
+		
+	}
+	else if (Difficulty == EDifficulty::Normal)
+	{
+		if (FMath::RandRange(0, 3) == 0)
+		{
+			ShotSpeedMultiplier = FMath::FRandRange(NormalMinShotMultiplier, NormalMinShotMultiplier * 1.2f);
+		}
+		else
+		{
+			ShotSpeedMultiplier = FMath::FRandRange(NormalMaxShotMultiplier*.8f, NormalMaxShotMultiplier);
+		}
+	}
+	else if (Difficulty == EDifficulty::Hard)
+	{
+		if (FMath::RandRange(0, 3) == 0)
+		{
+			ShotSpeedMultiplier = FMath::FRandRange(HardMinShotMultiplier, HardMinShotMultiplier * 1.15f);
+		}
+		else
+		{
+			ShotSpeedMultiplier = FMath::FRandRange(HardMaxShotMultiplier*.8f, HardMaxShotMultiplier);
+		}
+	}
+	
+	FVector CurrentShipLocation = GetShipLocation();
 	int counter = 0;
 	for (int i = 0; i < SpreadProjectilesArray.Num() && counter < NumberOfSpreadShots; i++)
 	{
@@ -507,24 +593,25 @@ void AMonster::ShootSpreadProjectiles()
 		else
 		{
 			FVector ProjectileLocation = GetActorLocation();
-			FVector NewShipLocation = GetShipLocation() + counter * 20;
+			FVector NewShipLocation;
 
-			if (Difficulty == EDifficulty::Easy)
+			if (counter % 2 == 0)
 			{
-				float ShotSpeedMultiplier = FMath::FRandRange(EasyMinShotMultiplier, EasyMaxShotMultiplier);
-				SpreadProjectilesLocations[i] = NewShipLocation * ShotSpeedMultiplier;
+				if (counter == 0)
+				{
+					NewShipLocation = (CurrentShipLocation * ShotSpeedMultiplier);
+				}
+				else
+				{
+					NewShipLocation = (CurrentShipLocation * ShotSpeedMultiplier) + (counter * 40) - 40;
+				}
 			}
-			else if (Difficulty == EDifficulty::Normal)
+			else
 			{
-				float ShotSpeedMultiplier = FMath::FRandRange(NormalMinShotMultiplier, NormalMinShotMultiplier);
-				SpreadProjectilesLocations[i] = NewShipLocation* ShotSpeedMultiplier;
-			}
-			else if (Difficulty == EDifficulty::Hard)
-			{
-				float ShotSpeedMultiplier = FMath::FRandRange(HardMinShotMultiplier, HardMaxShotMultiplier);
-				SpreadProjectilesLocations[i] = NewShipLocation* ShotSpeedMultiplier;
+				NewShipLocation = (CurrentShipLocation * ShotSpeedMultiplier) + (counter * 40 * -1);
 			}
 
+			SpreadProjectilesLocations[i] = NewShipLocation;
 			SpreadProjectilesArray[i]->SetWorldLocation(ProjectileLocation);
 			//	SpreadProjectilesArray[i]->SetVisibility(true);
 
@@ -544,7 +631,7 @@ void AMonster::UpdateProjectiles(float DeltaTime)
 		if (StraightProjectilesArray[i]->GetChildComponent(0)->IsVisible())
 		{
 			StraightProjectilesArray[i]->GetOverlappingComponents(OverlappingComponents);
-			if (UpdateOverlappingProjectiles(OverlappingComponents)) //check if its overlapping to destroy it
+			if (UpdateOverlappingProjectiles(OverlappingComponents,StraightProjectilesColor[i])) //check if its overlapping to destroy it
 			{
 				StraightProjectilesArray[i]->SetVisibility(false);
 				StraightProjectilesArray[i]->SetWorldLocation(FVector(100.0f, 100.0f, -100.0f));
@@ -566,7 +653,7 @@ void AMonster::UpdateProjectiles(float DeltaTime)
 		if (SpreadProjectilesArray[i]->GetChildComponent(0)->IsVisible())
 		{
 			SpreadProjectilesArray[i]->GetOverlappingComponents(OverlappingComponents);
-			if (UpdateOverlappingProjectiles(OverlappingComponents)) //check if its overlapping to destroy it
+			if (UpdateOverlappingProjectiles(OverlappingComponents,SpreadProjectilesColor[i])) //check if its overlapping to destroy it
 			{
 				SpreadProjectilesArray[i]->SetVisibility(false);
 				SpreadProjectilesArray[i]->SetWorldLocation(FVector(100.0f, 100.0f, -100.0f));
@@ -591,7 +678,7 @@ void AMonster::UpdateProjectiles(float DeltaTime)
 		if (RadialProjectilesArray[i]->GetChildComponent(0)->IsVisible())
 		{
 			RadialProjectilesArray[i]->GetOverlappingComponents(OverlappingComponents);
-			if (UpdateOverlappingProjectiles(OverlappingComponents)) //check if its overlapping to destroy it
+			if (UpdateOverlappingProjectiles(OverlappingComponents,SpreadProjectilesColor[i])) //check if its overlapping to destroy it
 			{
 				RadialProjectilesArray[i]->SetVisibility(false);
 				RadialProjectilesArray[i]->SetWorldLocation(FVector(100.0f, 100.0f, -100.0f));
@@ -627,50 +714,51 @@ void AMonster::SetRandomShot()
 	}
 }
 
-bool AMonster::UpdateOverlappingProjectiles(TArray<UPrimitiveComponent*>& OverlappingComponents)
+bool AMonster::UpdateOverlappingProjectiles(TArray<UPrimitiveComponent*>& OverlappingComponents, int color) // 1 == yellow, 2 == blue
 { //might cause crashing when both referencing each other
 	for (int i = 0; i < OverlappingComponents.Num(); i++)
 	{
-		if (OverlappingComponents[i]->GetName().Contains("ShipSprite"))
+		if (OverlappingComponents[i]->GetName().Contains("ShipHitBox"))
 		{
-			DebugString = "ShipSprite";
 			AShip* ship = Cast<AShip>(OverlappingComponents[i]->GetAttachmentRootActor());
 
 			ship->bIsDead = true;
+			bCanShoot = false;
 
 			ShotsInUse -= 1;
 			return true;
 		}
 		else if (OverlappingComponents[i]->GetName().Contains("AbsorbSprite"))
 		{
-			DebugString = "AbsorbSprite";
 			AShip* ship = Cast<AShip>(OverlappingComponents[i]->GetAttachmentRootActor());
-			ship->Ammo += 1;
+
+			DebugString = FString::FromInt(color);
+			if (color == 1)
+			{
+				ship->Ammo += 1;
+			}
+			
 			ShotsInUse -= 1;
 			CaughtShotSound->Play();
 			return true;
 		}
 		else if (OverlappingComponents[i]->GetName().Contains("LeftBoundsSprite"))
 		{
-			DebugString = "LeftBoundsSprite";
 			ShotsInUse -= 1;
 			return true;
 		}
 		else if (OverlappingComponents[i]->GetName().Contains("TopBoundsSprite"))
 		{
-			DebugString = "TopBoundsSprite";
 			ShotsInUse -= 1;
 			return true;
 		}
 		else if (OverlappingComponents[i]->GetName().Contains("BottomBoundsSprite"))
 		{
-			DebugString = "BottomBoundsSprite";
 			ShotsInUse -= 1;
 			return true;
 		}
 		else if (OverlappingComponents[i]->GetName().Contains("RightBoundsSprite"))
 		{
-			DebugString = "RightBoundsSprite";
 			ShotsInUse -= 1;
 			return true;
 		}
@@ -713,7 +801,7 @@ float AMonster::GetShootAgainTime()
 	{
 		return FMath::FRandRange(HardMinShootAgainTime, HardMaxShootAgainTime);
 	}
-	return 2;
+	return 0;
 }
 FVector AMonster::GetShipLocation()
 {
