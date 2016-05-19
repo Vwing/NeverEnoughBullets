@@ -76,7 +76,6 @@ ABounds::ABounds()
 	LeftBounds->RelativeRotation = FRotator(0.0f, 0.0f, 0.0f);
 
 	InnerBoundsRotation = FRotator(90.0f, 0.0f, 90.0f);
-	
 }
 
 // Called when the game starts or when spawned

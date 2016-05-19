@@ -13,7 +13,8 @@ class GAMEJAM2016_API AGameJam2016GameMode : public AGameMode
 {
 	GENERATED_BODY()
 	
-	
-	
+public:
+	AGameJam2016GameMode();
+	virtual void StartPlay() override;
 	
 };

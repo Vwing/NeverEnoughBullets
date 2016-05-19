@@ -13,53 +13,34 @@ class GAMEJAM2016_API AProjectile : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AProjectile();
-
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	
-	// Called every frame
 	virtual void Tick( float DeltaSeconds ) override;
-};
-	/*
-	void MakeMovements(float DeltaTime);
 
+	void Start(float x, float y, int8 color, class AReferencer* ref);
 	void UpdateOverlappingComponents(TArray<UPrimitiveComponent*>& OverlappingComponents);
-	void SetPlayerShot(int XBulletSpeed, int YBulletSpeed,FVector ProjectileLocation);
-
-	struct EProjectileStates
-	{
-		enum Type
-		{
-			PlayerShot,
-			MonsterShotStraight,
-			MonsterShotSin
-		};
-
-	};
-
-	//UPROPERTY(EditAnywhere, Category = "Movement")
-		EProjectileStates::Type ProjectileState;
-
-	UPROPERTY(EditAnywhere, Category = "Movement")
-		FVector MovementDirection;
+	void MakeMovements(float DeltaTime);
+	void Scroll(FVector MoveVect);
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
 		float XSpeed;
-
 	UPROPERTY(EditAnywhere, Category = "Movement")
 		float YSpeed;
 
-	UPROPERTY(EditAnywhere, Category = "Visual")
-	class UPaperSpriteComponent* ProjectileSprite;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		int8 Color;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		bool bHasStarted;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		class AReferencer* Ref;
 
-	UPROPERTY(EditAnywhere, Category = "Audio")
-	class UAudioComponent* ShootingSound;
+	UPROPERTY(EditAnywhere, Category = "Sprite")
+	class UPaperSpriteComponent* ProjectileHitBox;
+	UPROPERTY(EditAnywhere, Category = "Sprite")
+	class UPaperSpriteComponent* ProjectileSprite;
 
 	UPROPERTY(EditAnywhere, Category = "Debug")
 		TArray<UPrimitiveComponent*> OverlappingComponents;
-
 	UPROPERTY(EditAnywhere, Category = "Debug")
 		FString DebugString;
-	
-	*/
+};
 

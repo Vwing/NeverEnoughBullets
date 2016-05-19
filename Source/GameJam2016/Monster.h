@@ -25,20 +25,18 @@ public:
 		TArray<UPrimitiveComponent*> OverlappingComponents;
 
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
+	class UPaperSprite* BlueProjectile;
+
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
+	class UPaperSprite* YellowProjectile;
+
+
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		TArray<class UPaperSpriteComponent*>  SpreadProjectilesArray;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		TArray<class UPaperSpriteComponent*>  StraightProjectilesArray;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		TArray<class UPaperSpriteComponent*>  RadialProjectilesArray;
-
-	UPROPERTY(EditAnywhere, Category = "Projectiles")
-		FRotator ProjectileRotation;
-
-	UPROPERTY(VisibleAnywhere, Category = "Projectiles")
-		int8 ShotsInUse;
-
-	UPROPERTY(VisibleAnywhere, Category = "Projectiles")
-		int8 MaxShotsUsed;
 
 	UPROPERTY(VisibleAnywhere, Category = "Projectiles")
 		TArray<FVector> StraightProjectilesLocations;
@@ -63,8 +61,15 @@ public:
 	class UPaperFlipbook* FastShotAnim;
 	UPROPERTY(EditAnywhere, Category = "Anim")
 	class UPaperFlipbook* SlowShotAnim;
+	UPROPERTY(EditAnywhere, Category = "Anim")
+	class UPaperFlipbook* LaughingAnim;
+	UPROPERTY(EditAnywhere, Category = "Anim")
+	class UPaperFlipbook* ExplodingAnim;
 
 	class UPaperSpriteComponent* MonsterSprite;
+
+	UPROPERTY(EditAnywhere, Category = "Anim")
+	class UPaperSpriteComponent* BuildingSprite;
 
 	UPROPERTY(EditAnywhere, Category = "Sound")
 	class UAudioComponent* DamagedSound;
@@ -82,7 +87,6 @@ public:
 	class UAudioComponent* CaughtShotSound;
 
 
-
 	UPROPERTY(EditAnywhere, Category = "Debug")
 		FString DebugString;
 	UPROPERTY(EditAnywhere, Category = "Debug")
@@ -96,8 +100,11 @@ public:
 		{
 			Idle,
 			ShootingStraight,
+			ShootingFast,
 			ShootingSlow,
 			ShootingRetaliationShot,
+			Laughing,
+			Exploding,
 			Damaged,
 			ErrorState,
 			Closed
@@ -110,6 +117,7 @@ public:
 	{
 		enum Type
 		{
+			VeryEasy,
 			Easy,
 			Normal,
 			Hard
@@ -118,79 +126,159 @@ public:
 	EDifficulty::Type Difficulty;
 	
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
-	float ProjectileSpeed;
-
+		float ProjectileSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category = "Projectiles")
 		int32 NumberOfSpreadShots;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectiles")
 		int32 NumberOfRadialShots;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
-		float EasyMinShotMultiplier;
+		float EasyFastShotMulti;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
-		float EasyMaxShotMultiplier;
+		float EasySlowShotMulti;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
-		float NormalMinShotMultiplier;
+		float NormalFastShotMulti;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
-		float NormalMaxShotMultiplier;
+		float NormalSlowShotMulti;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
-		float HardMinShotMultiplier;
+		float HardFastShotMulti;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
-		float HardMaxShotMultiplier;
+		float HardSlowShotMulti;
 
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
-		float EasyMinShootAgainTime;
+		float EasyShootAgainTime;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
-		float EasyMaxShootAgainTime;
+		float NormalShootAgainTime;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
-		float NormalMinShootAgainTime;
-	UPROPERTY(EditAnywhere, Category = "Projectiles")
-		float NormalMaxShootAgainTime;
-	UPROPERTY(EditAnywhere, Category = "Projectiles")
-		float HardMinShootAgainTime;
-	UPROPERTY(EditAnywhere, Category = "Projectiles")
-		float HardMaxShootAgainTime;
+		float HardShootAgainTime;
 
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
+		FRotator ProjectileRotation;
+	UPROPERTY(VisibleAnywhere, Category = "Projectiles")
+		int8 ShotsInUse;
+	UPROPERTY(VisibleAnywhere, Category = "Projectiles")
+		int8 MaxShotsUsed;
+
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
+		int8 MaxStraightShots;
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
+		int8 MaxSpreadShots;
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
+		int8 MaxRadialShots;
+
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
 	bool bCanShoot;
-	void SetCanShoot();
+
+	bool bIsSlowMo;
+	bool bIsMoving;
+	bool bIsJumping;
+	bool bIsFalling;
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
+		bool bIsMonsterOnScreen;
+
+	FVector MonsterMovements;
+
+	float SlowMoMultiplier;
+	void MoveMonster(float DeltaTime);
 	void SetInitialProjectileSettings(UPaperSpriteComponent*& PrimComp);
 	
 	void UpdateProjectiles(float DeltaTime);
 	bool UpdateOverlappingProjectiles(TArray<UPrimitiveComponent*>& OverlappingComponents, int color);
 
-	void SetDamagedState();
-	void SetDamagedAnim();
-
-	void SetRandomShot();
-
+	void SetShot();
+	void TookDamage();
 	void SetIdleAnim();
 	void SetIdleState();
 
-	void SetShootingStraightState();
-	void SetShootingRetaliationState();
-	void SetShootingRetaliationAnim();
+	void CheckForRetaliate(float DeltaTime);
 	void ShootRetaliationProjectile();
 
-	void SetFastShotAnim();
 	void ShootFastProjectile();
 	void UpdateDifficulty();
-
-	void SetSpreadShotAnim();
+	
+	void ShootSpread();
 	void ShootSpreadProjectiles();
 
-	void SetRadialShotAnim();
+	void ShootRadial();
 	void ShootRadialProjectiles();
 
-	float GetShootAgainTime();
 	FVector GetShipLocation();
 
 	FTimerHandle MonsterAnimHandle;
-	FTimerHandle ShootAgainHandle;
+	FTimerHandle JumpHandle;
+	FTimerHandle DeathTimer;
+	
+	UPROPERTY(EditAnywhere, Category = "DeathTimer")
+	float CurrentTimer;
+	UPROPERTY(EditAnywhere, Category = "DeathTimer")
+	float MaxTimer;
 
+	UPROPERTY(EditAnywhere, Category = "Stats")
+	bool bIsShipAlive;
+
+	void UpdateDeathTimer(float DeltaTime);
+	
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		FVector ProjectileAnimOffset;
-
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		FVector ProjectileAnimScale;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		FVector ProjectileSpriteScale;
+	UPROPERTY(EditAnyWhere, Category = "Projectiles")
+		float SpreadSize;
+
+	void UpdateMonsterMovements();
+	UPROPERTY(EditAnywhere, Category = "Stats")
+	FVector BuildingLocation;
+	FVector TopJumpLocation;
+
+	float JumpAgainTimer;
+
+	void StartJump();
+	FVector GroundLocation;
+
+	UPROPERTY(EditAnywhere, Category = "Referencer")
+	class AReferencer* Ref;
+	//void UpdateMonsterOverlaps(TArray<UPrimitiveComponent*> OverlappingComponents);
+	void CheckExplosionFinished(float DeltaTime);
+	UPROPERTY(EditAnywhere, Category="Death")
+	float ExplosionAnimationTime;
+	float ExplosionTimer;
+
+	void CheckIfCanShoot(float DeltaTime);
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
+		float ShootTimer;
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
+		float ShootAgainDuration;
+
+	void UpdateShootingTimers();
+	void ShootFast();
+
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
+		float DamagedDuration;
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
+		float DamagedTimer;
+
+	void EasyShootingPattern();
+	void VeryEasyShootingPattern();
+	void NormalShootingPattern();
+	void HardShootingPattern();
+
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
+		int8 CurrentShots;
+	UPROPERTY(EditAnywhere, Category = "Projectiles")
+		float VeryEasyShootAgainTime;
+
+	void Scroll(FVector MoveVect);
+	void ScrollProjectiles(FVector MoveVect);
+
+	bool HasNull();
+	UPROPERTY(EditAnywhere, Category = "Debug")
+		FString NullString;
+
+	bool IsProjectileTrajectoryOff(FVector& Location, class UPaperSpriteComponent*& Projectile, int index);
+	void SetClosedState();
+	UPROPERTY(EditAnywhere, Category = "Debug")
+		TArray<FName> NameArray;
+
 };

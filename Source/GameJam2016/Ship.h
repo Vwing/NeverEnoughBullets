@@ -20,19 +20,26 @@ public:
 	void Fire();
 	void StopFire();
 	void MoveUp(float AxisValue);
+
 	void MoveRight(float AxisValue);
 	void Absorb();
-	void StopAbsorb();
-	void InitiateAbsorb();
 
 	void MakeMovements(float DeltaTime);
+	void Move();
+	void Scroll();
+	
+	void AddAmmo();
+
+	void UpdateScrollingRules();
 	void ShootProjectile();
 	void UpdateProjectiles(float DeltaTime);
-	void UpdateMonster();
+	void UpdateMonster(float DeltaTime);
 	void UpdateOverlappingComponents(TArray<UPrimitiveComponent*>& OverlappingComponents);
 	bool UpdateOverlappingProjectiles(TArray<UPrimitiveComponent*>& OverlappingComponents);
 
-		
+	UPROPERTY(EditAnywhere, Category = "Stats")
+	class AReferencer* Ref;
+
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		float MaxVerticalSpeed;
 	UPROPERTY(EditAnywhere, Category = "Stats")
@@ -50,6 +57,8 @@ public:
 		int8 ShotsInUse;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectiles")
 		int32 Ammo;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectiles")
+		int32 MaxAmmo;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		TArray<class UPaperSpriteComponent*>  ProjectilesArray;
 
@@ -57,6 +66,12 @@ public:
 		FRotator ProjectileRotation;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		bool bCanShoot;
+
+	int32 Deaths;
+	UPROPERTY(EditAnywhere, Category = "DeathTimer")
+		float DeathTime;
+	UPROPERTY(EditAnywhere, Category = "DeathTimer")
+		float MaxDeathTime;
 
 	struct EShipStates
 	{
@@ -69,6 +84,10 @@ public:
 			Absorb,
 			Shooting,
 			Damaged,
+			Exploding,
+			Dead,
+			Invincible,
+			Sliced,
 			ErrorState,
 			Closed
 		};
@@ -76,8 +95,6 @@ public:
 
 	EShipStates::Type ShipState;
 
-	UPROPERTY(EditAnywhere, Category = "Anim")
-	class UPaperSpriteComponent* ShipSpriteContainer;
 	UPROPERTY(EditAnywhere, Category = "Anim")
 	class UPaperSpriteComponent* ShipHitBox;
 
@@ -94,6 +111,10 @@ public:
 	class UPaperFlipbook* ShipMoveUpAnim;
 	UPROPERTY(EditAnywhere, Category = "Anim")
 	class UPaperFlipbook* ShipBlueAnim;
+	UPROPERTY(EditAnywhere, Category = "Anim")
+	class UPaperFlipbook* ExplosionAnim;
+	UPROPERTY(EditAnywhere, Category = "Anim")
+	class UPaperFlipbook* InvincibleAnim;
 
 	// absorb components
 	UPROPERTY(EditAnywhere, Category = "Anim")
@@ -118,14 +139,14 @@ public:
 	class UAudioComponent* SliceSound;
 	UPROPERTY(EditAnywhere, Category = "Audio")
 	class UAudioComponent* BlasterSound;
-
-
 	
 
 	UPROPERTY(EditAnywhere, Category = "Stats")
 	class UPaperSpriteComponent* TopInnerBounds;
 	UPROPERTY(EditAnywhere, Category = "Stats")
 	class UPaperSpriteComponent* BottomInnerBounds;
+
+
 	UPROPERTY(EditAnywhere, Category = "Debug")
 		TArray<UPrimitiveComponent*> OverlappingComponents;
 
@@ -134,34 +155,34 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Debug")
 		FVector DebugLocation;
 
-	UPROPERTY(EditAnywhere, Category = "Stats")
-	class AMonster* MonsterReference;
-
 	bool bCanMoveLeft;
 	bool bCanMoveRight;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	bool bIsDead;
-	bool bCanAbsorb;
+		bool bIsDead;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 		bool bIsExploding;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+		bool bIsInvincible;
 
 	FTimerHandle ShipHandle;
 	FTimerHandle UpdateMonsterHandle;
-	FTimerHandle AbsorbHandle;
 	FTimerHandle ArrowHandle;
+	FTimerHandle SlowMoHandle;
 
-	void AllowAbsorb();
+	void TurnSlowMoOn();
+	void TurnSlowMoOff();
+	UPROPERTY(EditAnywhere, Category="Stats")
+	float SlowMoDuration;
+	void SlowMo();
+	void StopSlowMo();
 
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		FVector ProjectileAnimOffset;
 	UPROPERTY(EditAnywhere, Category = "Projectiles")
 		FVector ProjectileAnimScale;
 
-	UPROPERTY(EditAnywhere, Category = "Stats")
-		float AbsorbAgainTimer;
-	UPROPERTY(EditAnywhere, Category = "Stats")
-		float AbsorbDuration;
+	
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		FVector AbsorbSpriteScale;
 	UPROPERTY(EditAnywhere, Category = "Stats")
@@ -171,16 +192,79 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Stats")
 		FVector ShipFlipbookScale;
 	UPROPERTY(EditAnywhere, Category = "Stats")
+		FVector ShipFlipbookOffset;
+	UPROPERTY(EditAnywhere, Category = "Stats")
 		FVector InnerBoundsScale;
-	
-	void UpdateAbsorb();
+
 	bool bCanSlice;
+	bool bIsSlowMo;
+	bool bCanSlowMo;
+	float SlowMoMultiplier;
 	bool bGameHasStarted;
 	bool bAreArrowsOn;
 	void SetAnim(UPaperFlipbook* AnimAsset);
 	void UpdateArrows();
+	void Die();
 	
 	void TurnArrowsOff();
-	UPROPERTY(EditAnywhere,Category = "Stats")
+	UPROPERTY(EditAnywhere,Category = "Absorb")
 	float AbsorbAnimXOffset;
+
+	void CheckForRevive(float DeltaTime);
+	void ReviveShip();
+	void CheckFinishedExploding(float DeltaTime);
+	void ShotDead();
+	void UpdateInvincibility(float DeltaTime);
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		float MaxInvincibleTime;
+
+	void UpdateOtherStates(float DeltaTime);
+	UPROPERTY(EditAnywhere, Category = "Absorb")
+		float AbsorbAgainTimer;
+	UPROPERTY(EditAnywhere, Category = "Absorb")
+		float AbsorbDuration;
+	UPROPERTY(EditAnywhere, Category = "Absorb")
+		float AbsorbTimer;
+	UPROPERTY(EditAnywhere, Category = "Absorb")
+		bool bIsAbsorbing;
+	void UpdateSlice();
+	void UpdateAbsorb(float DeltaTime);
+	
+	UPROPERTY(EditAnywhere, Category = "Movements")
+		bool bCanScrollLeft;
+	UPROPERTY(EditAnywhere, Category = "Movements")
+		bool bCanScrollRight;
+	UPROPERTY(EditAnywhere, Category = "Movements")
+		bool bIsInRightZone;
+	UPROPERTY(EditAnywhere, Category = "Movements")
+		bool bIsInLeftZone;
+	
+
+	UPROPERTY(EditAnywhere, Category = "Debug")
+		FString DebugString2;
+
+	bool HasNull();
+	UPROPERTY(EditAnywhere, Category = "Debug")
+		FString NullString;
+
+	void SetClosedState();
+	void SetIdleState();
+	void KeepScroll(float HorizontalMovement);
+	void SlicedScroll(float HorizontalMovement);
+	void CameraMove(FVector MoveVect);
+	void ScrollLeft(float DeltaTime);
+
+	UPROPERTY(EditAnywhere, Category = "Movements")
+		bool bIsScrollingRight;
+	UPROPERTY(EditAnywhere, Category = "Movements")
+		bool bIsScrollingLeft;
+
+	void DisableAllShots();
+
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		float MonsterTimer;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		float MonsterDuration;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+		bool bIsScrolling;
 };
